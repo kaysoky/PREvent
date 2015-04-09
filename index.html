@@ -1,99 +1,12 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>PREvent by kaysoky</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>PREvent</h1>
-        <p>CSE 477 Repository</p>
-
-        <p class="view"><a href="https://github.com/kaysoky/PREvent">View the Project on GitHub <small>kaysoky/PREvent</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/kaysoky/PREvent/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/kaysoky/PREvent/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/kaysoky/PREvent">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>
-<a id="prevent" class="anchor" href="#prevent" aria-hidden="true"><span class="octicon octicon-link"></span></a>PREvent</h3>
-
-<p>Mingyu Zhang, Jay Feng, Joseph Wu, William Hwang</p>
-
-<h3>
-<a id="background--motivation" class="anchor" href="#background--motivation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background &amp; Motivation</h3>
-
-<ul>
-<li>Most (~50-60%) health problems originate from a person’s local environment (home, office, etc)</li>
-<li>Current health care system is poorly equipped to deal with issues outside the hospital or clinic</li>
-<li>Many issues with the local environment are simple to identify, straight forward to address</li>
-<li>Problem is, the local environment is generally not addressed in the health system</li>
+---
+layout: default
+title: PREvent
+---
+<h2>Project links</h2>
+<ul id="archive">
+    {% for post in site.posts %}
+        <li>
+            <a href="{{ post.url }}">{{ post.title }}</a>
+        </li>
+    {% endfor %}
 </ul>
-
-<h3>
-<a id="concept" class="anchor" href="#concept" aria-hidden="true"><span class="octicon octicon-link"></span></a>Concept</h3>
-
-<ul>
-<li>Wear a few extra uncommon environmental sensors on the wrist or belt</li>
-<li>Collect sensor data + GPS</li>
-<li>Alert user upon spikes in local risk factors</li>
-<li>Build maps of temporal and spatial risk factors around the user’s location and paths</li>
-</ul>
-
-<h3>
-<a id="example-scenarios" class="anchor" href="#example-scenarios" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example Scenarios</h3>
-
-<ul>
-<li>Ventilation filters to your office wear down and start spewing unclean air
-** You find out right away
-** Otherwise, a routine maintenance make take several weeks/months to fix the problem</li>
-<li>Cyclotron in nearby UW medical center malfunctions and bathes campus in gamma rays</li>
-</ul>
-
-<h3>
-<a id="competing-products" class="anchor" href="#competing-products" aria-hidden="true"><span class="octicon octicon-link"></span></a>Competing Products</h3>
-
-<ul>
-<li>Speck
-Home-based PM2.5 sensor</li>
-<li>SensorDrone
-Peripheral sensor expansion for phone</li>
-<li>Sensaris
-No data since 2013</li>
-</ul>
-
-<h3>
-<a id="resources-needed" class="anchor" href="#resources-needed" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources Needed</h3>
-
-<ul>
-<li>Dust/large particulate matter sensor</li>
-<li>CO sensor</li>
-<li>UV sensor</li>
-<li>Radiation sensor</li>
-<li>Small particulate matter (PM10 &amp; PM2.5) sensor</li>
-<li>Gaseous alcohol (i.e. breathalyzer) sensor</li>
-<li>Humidity sensor</li>
-</ul>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/kaysoky">kaysoky</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
-</html>
