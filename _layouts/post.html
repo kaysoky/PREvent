@@ -5,8 +5,8 @@ layout: default
 {{ content }}
 
 {% if page.next != nil %}
-	<a href="{{page.next.url}}">Next Post</a>
+	<a href="/PREvent{{page.next.url}}">Next Post</a>
 {% endif %}
 {% if page.previous != nil %}
-	<a href="{{page.previous.url}}">Previous Post</a>
+	<a href="/PREvent{{page.previous.url}}">Previous Post</a>
 {% endif %}

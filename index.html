@@ -6,7 +6,7 @@ title: PREvent
 <ul id="archive">
     {% for post in site.posts %}
         <li>
-            <a href="/PREvent{{ post.url }}">{{ post.title }}</a>
+            <a href="/PREvent{{ post.url }}">{{ post.title }} {{ post.date }}</a>
         </li>
     {% endfor %}
 </ul>
