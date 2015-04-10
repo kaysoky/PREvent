@@ -2,11 +2,14 @@
 layout: default
 title: PREvent
 ---
-<h2>Project links</h2>
-<ul id="archive">
+<h1>Proximal Risk Evaluation for Vent-ables</h1>
+<p>TODO: Project description</p>
+
+<h2>All Updates</h2>
+<ul>
     {% for post in site.posts %}
         <li>
-            <a href="/PREvent{{ post.url }}">{{ post.title }} {{ post.date }}</a>
+            <a href="/PREvent{{ post.url }}">{{ post.title }} {{ post.date | date_to_string }}</a>
         </li>
     {% endfor %}
 </ul>
