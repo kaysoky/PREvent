@@ -14,15 +14,14 @@ title: Group Member Skills
 # Jay Feng
 
 ### Software
-	Python, R, SQL, Web Scraping, Data Stuff
-	I would be interested in making a web server though too
-	Or creating an interface in javascript or node.js
+* Python, R, SQL, Web Scraping, Data Stuff
+* I would be interested in making a web server though too
+* Or creating an interface in javascript or node.js
 
 ### Digital
-	Almost nothing. CSE 466
-	
+* Almost nothing. CSE 466
+
 ### Analog
-	
 
 # Joseph Wu
 

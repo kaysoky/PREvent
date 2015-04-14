@@ -40,8 +40,8 @@ title: Modified Project Proposal
 * Gas sensor
 * Humidity sensor
 
-### Hardware Flow
-TODO
+### Hardware Block Diagram
+![](/PREvent/static/Hardware Block Diagram.jpg)
 
-### Software Flow
-TODO
+### Software Block Diagram
+![](/PREvent/static/Software Block Diagram.jpg)
