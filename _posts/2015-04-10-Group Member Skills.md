@@ -2,15 +2,6 @@
 layout: post
 title: Group Member Skills
 ---
-# Mingyu Zhang
-
-### Software
-
-### Digital
-
-### Analog
-
-
 # Jay Feng
 
 ### Software
@@ -22,6 +13,14 @@ title: Group Member Skills
 * Almost nothing. CSE 466
 
 ### Analog
+
+
+# William Hwang
+
+### Software
+
+### Digital
+
 
 # Joseph Wu
 
@@ -37,7 +36,8 @@ title: Group Member Skills
 * Intro level only
 
 
-# William Hwang
+### Analog
+# Mingyu Zhang
 
 ### Software
 
