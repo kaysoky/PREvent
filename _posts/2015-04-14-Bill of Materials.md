@@ -10,9 +10,9 @@ title: Bill of Materials
 
 | Other Hardware | Link | Cost |
 | :---: | :---: | --- |
-| Arduino | TODO: link | TODO: cost |
-| Bluetooth | TODO: link | TODO: cost |
-| Wires | | TODO: cost |
+| Arduino | [TinyDuino Processor Board](https://tiny-circuits.com/tinyduino-processor-board.html) | $19.95 |
+| Bluetooth | [TinyShield Bluetooth Low Energy](https://tiny-circuits.com/tiny-shield-bluetooth-low-energy.html) | $49.95 |
+| Wires & Components | | $25.00 |
 
 ## Total Cost:
-* $42.65 + TODO
+* $137.55
