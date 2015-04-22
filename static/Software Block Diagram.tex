@@ -1,0 +1,69 @@
+\documentclass[a4paper, 12pt]{report}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes.geometric}
+
+\newcommand{\degrees}{\ensuremath{{}^{\circ}}}
+\newcommand{\angstrom}{\mbox{\text{\AA}}}
+\newcommand{\TODO}{{\color{red} \Huge TODO}}
+
+% Size of the component blocks
+\newlength{\blockSize}
+\setlength{\blockSize}{3cm}
+
+% Style of block component in diagram
+\tikzset{Component/.style={minimum width=\blockSize,
+                           minimum height=\blockSize,
+                           text width=\blockSize,
+                           align=center}}
+
+% Style of flow arrow in diagram
+\tikzset{Flow Arrow/.style={blue, dotted, line width=1.5pt}}
+
+\begin{document}
+\begin{tikzpicture}
+    % Most of the specialized hardware
+    \node[draw, rectangle, Component]
+        at (0, 0) (Embedded) {Wearable \\ Device};
+
+    % Phone for GPS and data connection
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(Embedded.east) + (2, 0)$) (Phone) {Phone};
+
+    % Web server
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Phone.south) - (0, 2)$) (Server) {Web \\ Server};
+
+    % Database
+    \node[draw, cylinder, shape border rotate=90, aspect=0.25, Component, anchor=east]
+        at ($(Server.west) - (2, 0)$) (Database) {Database};
+
+    % Client
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Server.south) - (0, 2)$) (Client) {Client \\ Computer};
+
+    % Primary interconnect between hardware & software systems
+    \draw[->, Flow Arrow] (Embedded) -- (Phone)
+        node[black, pos=0.5, sloped, above] {Bluetooth};
+
+    % Data flow
+    \draw[->, Flow Arrow] (Phone) -- (Server)
+        node[black, pos=0.5, right] {Sensor Data + GPS};
+    \draw[-, Flow Arrow, opacity=0.3] (Server.north) to[out=south, in=east] (Server.west);
+    \draw[<->, Flow Arrow] (Server) -- (Database);
+    \draw[-, Flow Arrow, opacity=0.3] (Server.south) to[out=north, in=east] (Server.west);
+    \draw[->, Flow Arrow] (Server) -- (Client);
+    \draw[->, Flow Arrow] (Server.east)
+            .. controls ($(Server.east) + (4, 0)$) and ($(Phone.east) + (4, 0)$)
+            .. (Phone.east)
+        node[black, pos=0.5, right] {Alerts \& Aggregated local data};
+
+\end{tikzpicture}
+\end{document}

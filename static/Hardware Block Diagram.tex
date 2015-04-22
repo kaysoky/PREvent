@@ -1,0 +1,76 @@
+\documentclass[a4paper, 12pt]{report}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes.geometric}
+
+\newcommand{\degrees}{\ensuremath{{}^{\circ}}}
+\newcommand{\angstrom}{\mbox{\text{\AA}}}
+\newcommand{\TODO}{{\color{red} \Huge TODO}}
+
+% Size of the component blocks
+\newlength{\blockSize}
+\setlength{\blockSize}{3cm}
+
+% Style of block component in diagram
+\tikzset{Component/.style={minimum width=\blockSize,
+                           minimum height=\blockSize,
+                           text width=\blockSize,
+                           align=center}}
+
+% Style of flow arrow in diagram
+\tikzset{Flow Arrow/.style={blue, dotted, line width=1.5pt}}
+
+\begin{document}
+\begin{tikzpicture}
+    % Sensor hub
+    \node[draw, rectangle, Component]
+        at (0, 0) (Arduino) {Arduino};
+
+    % Sensors
+    \node[draw, rectangle, Component, anchor=south]
+        at ($(Arduino.north) + (0, 2)$) (PM Sensor) {PM \\ Sensor};
+    \node[draw, rectangle, Component, anchor=east]
+        at ($(PM Sensor.west) - (2, 0)$) (Humidity) {Humidity \\ Sensor};
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(PM Sensor.east) + (2, 0)$) (Gas Sensor) {Gas \\ Sensor};
+        
+    % Power
+    \node[draw, rectangle, Component, anchor=east]
+        at ($(Arduino.west) - (2, 0)$) (Power) {Battery};
+    \node[draw, rectangle, Component, anchor=south]
+        at ($(PM Sensor.north) + (0, 1)$) (Booster) {Boost \\ Converter};
+        
+    % Output module
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Arduino.south) - (0, 2)$) (Bluetooth) {Bluetooth};
+
+    % Sensor interconnects
+    \draw[->, Flow Arrow] (PM Sensor) -- (Arduino)
+        node[pos=0.5, right] {Digital};
+    \draw[->, Flow Arrow] (Humidity) -- (Arduino)
+        node[pos=0.5, right] {I$^2$C};
+    \draw[->, Flow Arrow] (Gas Sensor) -- (Arduino)
+        node[pos=0.5, right] {Analog};
+    
+    % Power lines
+    \draw[->, Flow Arrow] (Power) -- (Arduino);
+    \draw[-, Flow Arrow, opacity=0.3] 
+        (Power) to[out=north, in=south] ($(PM Sensor)!0.5!(Humidity)$) 
+            to[out=north, in=west] (Booster) 
+            to[out=east, in=north] (PM Sensor)
+        (Power) to[out=north, in=south west] (Humidity)
+        (Power) to[out=north, in=south west] (Gas Sensor)
+        (Power) to[out=east, in=north] (Bluetooth);
+    
+    % To phone
+    \draw[->, Flow Arrow] (Arduino) -- (Bluetooth);
+    
+\end{tikzpicture}
+\end{document}
