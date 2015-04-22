@@ -45,3 +45,4 @@ title: Modified Project Proposal
 
 ### Software Block Diagram
 ![](/PREvent/static/Software Block Diagram.jpg)
+![](/PREvent/static/Phone App Flow.png)
