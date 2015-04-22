@@ -5,7 +5,7 @@ title: Bill of Materials
 | Sensor | Link | Cost | Voltage | Current | Interface |
 | :---: | :---: | :---: | :---: | :---: | :---: |
 | PM2.5 | [Sharp Microelectronics GP2Y1010AU0F](http://www.digikey.com/product-detail/en/GP2Y1010AU0F/425-2068-ND/720164) | $12.63 | 4.5-5.5 V | 20 mA | Digital |
-| Volatile Organic Chemical (VOC) Gas | [AMS AS-MLV-P2](http://www.digikey.com/product-detail/en/AS-MLV-P2/AS-MLV-P2-ND/5117220) | $18.91 | 2.7 V | 30 mA | Analog |
+| Volatile Organic Chemical (VOC) Gas | [AMS AS-MLV-P2](http://www.digikey.com/product-detail/en/AS-MLV-P2/AS-MLV-P2-ND/5117220) | $18.91 | 2.7 V | 13 mA | Analog |
 | Humidity | [Amphenol ChipCap2](http://www.digikey.com/product-search/EN?mpart=CC2D25S-SIP) | $15.21 | 5 V | 0.6 - 750 uA | I2C |
 
 | Other Hardware | Link | Cost | Voltage | Comments |
