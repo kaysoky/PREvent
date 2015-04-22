@@ -41,7 +41,7 @@ title: Modified Project Proposal
 * Humidity sensor
 
 ### Hardware Block Diagram
-![](/PREvent/static/Hardware Block Diagram.jpg)
+![](/PREvent/static/Hardware Block Diagram.png)
 
 ### Software Block Diagram
 ![](/PREvent/static/Software Block Diagram.jpg)
