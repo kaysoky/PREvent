@@ -1,0 +1,17 @@
+html, body {
+    color: white;
+    background: black;
+}
+.errorlist {
+    margin: auto;
+    color: red;
+    list-style-type: none;
+    text-align: center;
+    width: 0px;
+    padding-left: 0px;
+    white-space: nowrap;
+}
+.errorlist.nonfield {
+    width: 200px;
+    white-space: normal;
+}

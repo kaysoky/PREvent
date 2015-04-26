@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Datapoint
 
-# Register your models here.
+# Admin permissions
+admin.site.register(Datapoint)

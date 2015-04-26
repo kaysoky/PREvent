@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+        {% csrf_token %}
+        <table>
+            {% if form.non_field_errors %}
+                <tr><td colspan="3">{{ form.non_field_errors }}</td></tr>
+            {% endif %}
+            <tr>
+                <td>{{ form.username.label_tag }}</td>
+                <td>{{ form.username }}</td>
+                {% if 'username' in form.errors %}
+                    <td>{{ form.errors.username }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>{{ form.password.label_tag }}</td>
+                <td>{{ form.password }}</td>
+                {% if 'password' in form.errors %}
+                    <td>{{ form.errors.password }}</td>
+                {% endif %}
+            </tr>
+        </table>
+
+        <input type="submit" value="Login" />
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+    <p>First time user? <a href="/accounts/register/">Register here</a></p>
+{% endblock %}

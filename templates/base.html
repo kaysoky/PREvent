@@ -1,0 +1,15 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+    <head>
+        <title>PREvent</title>
+        <link rel="stylesheet" href="{% static 'base.css' %}" />
+    </head>
+	<body tabindex="0">
+        <center>
+            <h1>{% block title %}{% endblock %}</h1>
+            
+            {% block content %}{% endblock %}
+        </center>
+	</body>
+</html

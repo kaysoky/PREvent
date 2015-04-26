@@ -1,14 +1,5 @@
 from django.db import models
-
-class User(models.Model):
-    """
-    Represents a single user of this service
-    """
-
-    userid = models.IntegerField(primary_key=True)
-
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=50)
+from django.contrib.auth.models import User
 
 class Datapoint(models.Model):
     """
@@ -16,7 +7,7 @@ class Datapoint(models.Model):
     """
 
     # ID of the user
-    userid = models.ForeignKey('User')
+    userid = models.ForeignKey(User)
 
     # Time of data collection, not the time of storage
     timestamp = models.DateTimeField()

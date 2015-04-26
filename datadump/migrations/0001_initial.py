@@ -2,11 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
@@ -21,19 +23,7 @@ class Migration(migrations.Migration):
                 ('temperature', models.FloatField()),
                 ('gas', models.FloatField()),
                 ('particulate', models.FloatField()),
+                ('userid', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
-        ),
-        migrations.CreateModel(
-            name='User',
-            fields=[
-                ('userid', models.IntegerField(serialize=False, primary_key=True)),
-                ('username', models.CharField(max_length=100)),
-                ('password', models.CharField(max_length=50)),
-            ],
-        ),
-        migrations.AddField(
-            model_name='datapoint',
-            name='userid',
-            field=models.ForeignKey(to='datadump.User'),
         ),
     ]
