@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 class Datapoint(models.Model):
     """
@@ -7,7 +6,7 @@ class Datapoint(models.Model):
     """
 
     # ID of the user
-    userid = models.ForeignKey(User)
+    userid = models.ForeignKey('auth.User', related_name='datapoints')
 
     # Time of data collection, not the time of storage
     timestamp = models.DateTimeField()

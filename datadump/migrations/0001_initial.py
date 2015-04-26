@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('temperature', models.FloatField()),
                 ('gas', models.FloatField()),
                 ('particulate', models.FloatField()),
-                ('userid', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('userid', models.ForeignKey(related_name='datapoints', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

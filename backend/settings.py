@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'datadump',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -108,6 +109,14 @@ STATICFILES_DIRS = (
 
 
 # Login and Registration
-LOGIN_REDIRECT_URL='/'
-ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
-REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
+REGISTRATION_AUTO_LOGIN = True # Automatically log the user in
+
+
+# REST API
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
