@@ -1,14 +1,19 @@
 {% load staticfiles %}
+
 <!doctype html>
 <html>
     <head>
         <title>PREvent</title>
         <link rel="stylesheet" href="{% static 'base.css' %}" />
+        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
     </head>
 	<body tabindex="0">
+        {% include 'header.html' %}
         <center>
             <h1>{% block title %}{% endblock %}</h1>
-            
+
             {% block content %}{% endblock %}
         </center>
 	</body>

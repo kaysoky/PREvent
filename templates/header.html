@@ -1,0 +1,16 @@
+<script type="text/javascript">
+    window.addEventListener('load', function () {
+        $('a, input[type="submit"]').button();
+    });
+</script>
+<div id="user_bar" class="clearfix">
+    <ul class="inline_list">
+        {% if user.is_authenticated %}
+            <li>Welcome, {{ user }}!</li>
+            <li><a href="/accounts/logout">Logout</a></li>
+        {% else %}
+            <li><a href="/accounts/login">Login</a></li>
+            <li><a href="/accounts/register">Register</a></li>
+        {% endif %}
+    </ul>
+</div>

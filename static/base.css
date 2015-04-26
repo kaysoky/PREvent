@@ -15,3 +15,21 @@ html, body {
     width: 200px;
     white-space: normal;
 }
+.clearfix:after{
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+	overflow: hidden;
+}
+#user_bar{
+	background: rgba(0,0,0,0.2);
+	margin: 7px 0;
+}
+
+.inline_list li {
+	padding-right: 10px;
+	float: left;
+    list-style: outside none none;
+}
