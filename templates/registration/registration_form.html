@@ -1,46 +1,78 @@
-{% extends "base.html" %}
+{% extends "rest_framework/login_base.html" %}
 
-{% block title %}
+{% block branding %}
     Register New User
 {% endblock %}
 
-{% block content %}
-    <form method="post" action="">
-        {% csrf_token %}
-        <table>
-            {% if form.non_field_errors %}
-                <tr><td colspan="3">{{ form.non_field_errors }}</td></tr>
+{% block form %}
+<form method="post" action="" role="form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div id="div_id_non_field_errors"
+            class="control-group error">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+    <div id="div_id_username"
+        class="clearfix control-group {% if form.username.errors %}error{% endif %}">
+        <div class="form-group">
+            <label for="id_username">Username:</label>
+            <input type="text" name="username" maxlength="100"
+                autocapitalize="off"
+                autocorrect="off" class="form-control textinput textInput"
+                id="id_username" required
+                {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+            {% if form.username.errors %}
+                <p class="text-error">
+                    {{ form.username.errors|striptags }}
+                </p>
             {% endif %}
-            <tr>
-                <td>{{ form.username.label_tag }}</td>
-                <td>{{ form.username }}</td>
-                {% if 'username' in form.errors %}
-                    <td>{{ form.errors.username }}</td>
-                {% endif %}
-            </tr>
-            <tr>
-                <td>{{ form.email.label_tag }}</td>
-                <td>{{ form.email }}</td>
-                {% if 'email' in form.errors %}
-                    <td>{{ form.errors.email }}</td>
-                {% endif %}
-            </tr>
-            <tr>
-                <td>{{ form.password1.label_tag }}</td>
-                <td>{{ form.password1 }}</td>
-                {% if 'password1' in form.errors %}
-                    <td>{{ form.errors.password1 }}</td>
-                {% endif %}
-            </tr>
-            <tr>
-                <td>{{ form.password2.label_tag }}</td>
-                <td>{{ form.password2 }}</td>
-                {% if 'password2' in form.errors %}
-                    <td>{{ form.errors.password2 }}</td>
-                {% endif %}
-            </tr>
-        </table>
-
-        <input type="submit" value="Submit" />
-    </form>
+        </div>
+    </div>
+    <div id="div_id_email"
+        class="clearfix control-group {% if form.email.errors %}error{% endif %}">
+        <div class="form-group">
+            <label for="id_email">Email:</label>
+            <input type="text" name="email" maxlength="100"
+                autocapitalize="off" autocorrect="off" class="form-control textinput textInput"
+                id="id_email" required>
+            {% if form.password.errors %}
+                <p class="text-error">
+                    {{ form.email.errors|striptags }}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div id="div_id_password1"
+        class="clearfix control-group {% if form.password1.errors %}error{% endif %}">
+        <div class="form-group">
+            <label for="id_password1">Password:</label>
+            <input type="password" name="password1" maxlength="100"
+                autocapitalize="off" autocorrect="off" class="form-control textinput textInput"
+                id="id_password1" required>
+            {% if form.password1.errors %}
+                <p class="text-error">
+                    {{ form.password1.errors|striptags }}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div id="div_id_password2"
+        class="clearfix control-group {% if form.password2.errors %}error{% endif %}">
+        <div class="form-group">
+            <label for="id_password2">Confirm Password:</label>
+            <input type="password" name="password2" maxlength="100"
+                autocapitalize="off" autocorrect="off" class="form-control textinput textInput"
+                id="id_password2" required>
+            {% if form.password2.errors %}
+                <p class="text-error">
+                    {{ form.password2.errors|striptags }}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-actions-no-box">
+        <input type="submit" name="submit" value="Register" class="btn btn-primary form-control" id="submit-id-submit">
+    </div>
+</form>
 {% endblock %}

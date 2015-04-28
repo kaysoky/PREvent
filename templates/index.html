@@ -1,9 +1,58 @@
-{% extends "base.html" %}
+{% extends "rest_framework/base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load rest_framework %}
 
-{% block title %}
-    Homepage
-{% endblock %}
+{% block body %}
+<body class="{% block bodyclass %}{% endblock %}">
 
-{% block content %}
-    TODO
+    <div class="wrapper">
+
+        {% block navbar %}
+            <div class="navbar navbar-static-top {% block bootstrap_navbar_variant %}navbar-inverse{% endblock %}">
+                <div class="container">
+                    <span>
+                        {% block branding %}
+                            <a class='navbar-brand' rel="nofollow" href='/'>
+                                PREvent
+                            </a>
+                        {% endblock %}
+                    </span>
+                    <ul class="nav navbar-nav pull-right">
+                        {% block userlinks %}
+                            {% if user.is_authenticated %}
+                                {% optional_logout request user %}
+                            {% else %}
+                                <li><a href="register/">Register</a></li>
+                                {% optional_login request %}
+                            {% endif %}
+                        {% endblock %}
+                    </ul>
+                </div>
+            </div>
+        {% endblock %}
+        
+        <div class="container">
+            <ul class="breadcrumb"></ul>
+            <div id="content">
+                <div class="content-main">
+                    <div class="page-header">
+                        <h1>Homepage Title</h1>
+                    </div>
+                    <div style="float:left">
+                        Stuff like maps and buttons
+                    </div>
+                </div>
+            <div>
+        <div>
+
+    </div><!-- ./wrapper -->
+
+    {% block script %}
+        <script src="{% static "rest_framework/js/jquery-1.8.1-min.js" %}"></script>
+        <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
+        <script src="{% static "rest_framework/js/default.js" %}"></script>
+    {% endblock %}
+</body>
 {% endblock %}
