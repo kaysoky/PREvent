@@ -2,13 +2,15 @@
 layout: default
 ---
 
-<h3>{{ page.title }}</h3>
+{% if page.title != nil %}
+    <h2>{{ page.title }}</h2>
+{% endif %}
 
 {{ content }}
 
 {% if page.next != nil %}
-	<a href="/PREvent{{page.next.url}}">Next Post</a>
+	<a href="/PREvent{{ page.next.url }}">Next Post</a>
 {% endif %}
 {% if page.previous != nil %}
-	<a href="/PREvent{{page.previous.url}}">Previous Post</a>
+	<a href="/PREvent{{ page.previous.url }}">Previous Post</a>
 {% endif %}
