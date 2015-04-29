@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <title>Googlemaps Heatmap Layer</title>
+    <style>
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+      h1 { position:absolute; }
+    </style>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="/static/heatmap.js"></script>
+    <script src="/static/gmaps-heatmap.js"></script>
+  </head>
+  <body>
+    <h1>Gmaps Heatmap Overlay Example</h1>
+    <div id="map-canvas"></div>
+    
+    <script>
+        // map center
+        var myLatlng = new google.maps.LatLng(47.657252, -122.311084);
+        // map options,
+        var myOptions = {
+          zoom: 12,
+          center: myLatlng
+        };
+        // standard map
+        map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+        // heatmap layer
+        heatmap = new HeatmapOverlay(map, 
+          {
+            // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+            "radius": .0005,
+            "maxOpacity": 1, 
+            // scales the radius based on map zoom
+            "scaleRadius": true, 
+            // if set to false the heatmap uses the global maximum for colorization
+            // if activated: uses the data maximum within the current map boundaries 
+            //   (there will always be a red spot with useLocalExtremas true)
+            "useLocalExtrema": true,
+            // which field name in your data represents the latitude - default "lat"
+            latField: 'lat',
+            // which field name in your data represents the longitude - default "lng"
+            lngField: 'lng',
+            // which field name in your data represents the data value - default "value"
+            valueField: 'count'
+          }
+        );
+
+        var testData = {
+          max: 8,
+          data: [{lat: 47.659146, lng:-122.320978, count: 5},{lat: 47.660894, lng:-122.320784, count: 2}, {lat: 47.664934, lng:-122.317845, count: 3},
+		  {lat: 47.663156, lng: -122.317416, count: 2},{lat: 47.660894, lng:-122.320784, count: 4}, {lat: 47.661263, lng: -122.317737, count: 3}]
+
+        };
+
+        heatmap.setData(testData);
+
+</script>
+  </body>
+</html>
