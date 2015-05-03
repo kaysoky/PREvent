@@ -13,5 +13,6 @@ urlpatterns = [
 ]
 
 urlpatterns += format_suffix_patterns([
-        url(r'^data/$', views.DatapointList.as_view())
+        url(r'^data/$', views.DatapointList.as_view()), 
+        url(r'^data/user/$', views.UserDatapointList.as_view()),
     ])

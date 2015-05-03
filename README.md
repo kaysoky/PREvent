@@ -4,6 +4,7 @@ Built with [Django](https://docs.djangoproject.com/en/1.8/)
 3rd party apps:
 * [Django Registration](https://django-registration.readthedocs.org/en/latest/)
 * [Django REST Framework](http://www.django-rest-framework.org/)
+* [Django Filter](https://github.com/alex/django-filter)
 * [heatmap.js](https://github.com/pa7/heatmap.js)
 
 ## Installation
@@ -11,6 +12,7 @@ Built with [Django](https://docs.djangoproject.com/en/1.8/)
 pip install django
 pip install django-registration-redux
 pip install djangorestframework
+pip install django-filter
 python manage.py migrate
 python manage.py createsuperuser
 ```
