@@ -17,7 +17,7 @@ title: Bill of Materials
 | Battery | [Lithium Ion Polymer Battery](https://www.sparkfun.com/products/339) | $9.95 | 3.7 V | 1000mAh Capacity |
 | Charger | [Lithium Battery Charger](https://www.sparkfun.com/products/10217) | $7.95 | 3.7 V | 500mA Charge Rate |
 | Connector | [PM Sensor Connector](https://www.sparkfun.com/products/9690) | $0.35 | | 6 Pin Connector |
-| Crimp Pins | [PM Sensor Crimp Pins](https://www.sparkfun.com/products/9690) | $0.60 | | 6x Crimp Pins |
+| Crimp Pins | [PM Sensor Crimp Pins](https://www.sparkfun.com/products/9728) | $0.60 | | 6x Crimp Pins |
 | Miscellaneous Electronics & Shipping | | $21.10 | | |
 
 Note: For development purposes, we will be getting the [TinyDuino Basic Kit](https://tiny-circuits.com/tiny-duino-basic-kit-158.html), which includes the programming interface.  This item is not included in the BOM because it is not part of the final product.
