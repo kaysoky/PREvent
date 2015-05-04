@@ -15,7 +15,10 @@ title: Bill of Materials
 | Boost Converter | [NCP1402](https://www.pololu.com/product/798) | $4.95 | 5 V | ~85% Efficiency |
 | Buck Converter | [Intersil ISL85415](https://www.pololu.com/product/2841) | $4.95 | 2.5 V | ~85% Efficiency |
 | Battery | [Lithium Ion Polymer Battery](https://www.sparkfun.com/products/339) | $9.95 | 3.7 V | 1000mAh Capacity |
-| Miscellaneous Electronics & Shipping | | $30.00 | | |
+| Charger | [Lithium Battery Charger](https://www.sparkfun.com/products/10217) | $7.95 | 3.7 V | 500mA Charge Rate |
+| Connector | [PM Sensor Connector](https://www.sparkfun.com/products/9690) | $0.35 | | 6 Pin Connector |
+| Crimp Pins | [PM Sensor Crimp Pins](https://www.sparkfun.com/products/9690) | $0.60 | | 6x Crimp Pins |
+| Miscellaneous Electronics & Shipping | | $21.10 | | |
 
 Note: For development purposes, we will be getting the [TinyDuino Basic Kit](https://tiny-circuits.com/tiny-duino-basic-kit-158.html), which includes the programming interface.  This item is not included in the BOM because it is not part of the final product.
 
