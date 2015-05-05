@@ -1,13 +1,30 @@
 // Bluegiga BGLib Arduino interface library slave device stub sketch
-// 2013-03-17 by Jeff Rowberg <jeff@rowberg.net>
+// 2014-02-12 by Jeff Rowberg <jeff@rowberg.net>
 // Updates should (hopefully) always be available at https://github.com/jrowberg/bglib
 
 // Changelog:
+//      2014-02-12 - Fixed compile problem from missing constants
 //      2013-03-17 - Initial release
 
 /* ============================================
+   !!!!!!!!!!!!!!!!!
+   !!! IMPORTANT !!!
+   !!!!!!!!!!!!!!!!!
+
+   THIS SCRIPT WILL NOT COMMUNICATE PROPERLY IF YOU DO NOT ENSURE ONE OF THE
+   FOLLOWING IS TRUE:
+
+   1. You enable the <wakeup_pin> functionality in your firmware
+
+   2. You COMMENT OUT the two lines 128 and 129 below which depend on wake-up
+      funcitonality to work properly (they will BLOCK otherwise):
+
+          ble112.onBeforeTXCommand = onBeforeTXCommand;
+          ble112.onTXCommandComplete = onTXCommandComplete;
+
+/* ============================================
 BGLib Arduino interface library code is placed under the MIT license
-Copyright (c) 2013 Jeff Rowberg
+Copyright (c) 2014 Jeff Rowberg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +50,7 @@ THE SOFTWARE.
 #include "BGLib.h"
 
 // uncomment the following line for debug serial output
-#define DEBUG
+//#define DEBUG
 
 // ================================================================
 // BLE STATE TRACKING (UNIVERSAL TO JUST ABOUT ANY BLE PROJECT)
@@ -64,12 +81,14 @@ uint8_t ble_bonding = 0xFF; // 0xFF = no bonding, otherwise = bonding handle
 // GATT handles to match your firmware.
 
 #define LED_PIN         13  // Arduino Uno LED pin
+#define BLE_WAKEUP_PIN  5   // BLE wake-up pin
+#define BLE_RESET_PIN   6   // BLE reset pin (active-low)
 
 #define GATT_HANDLE_C_RX_DATA   17  // 0x11, supports "write" operation
 #define GATT_HANDLE_C_TX_DATA   20  // 0x14, supports "read" and "indicate" operations
 
-// use SoftwareSerial on pins D3/D4 for RX/TX (Arduino side)
-SoftwareSerial bleSerialPort(3, 4);
+// use SoftwareSerial on pins D2/D3 for RX/TX (Arduino side)
+SoftwareSerial bleSerialPort(2, 3);
 
 // create BGLib object:
 //  - use SoftwareSerial por for module comms
@@ -91,15 +110,23 @@ void setup() {
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
     
-     // set up internal status handlers (these are technically optional)
+    // initialize BLE reset pin (active-low)
+    pinMode(BLE_RESET_PIN, OUTPUT);
+    digitalWrite(BLE_RESET_PIN, HIGH);
+
+    // initialize BLE wake-up pin to allow (not force) sleep mode (assumes active-high)
+    pinMode(BLE_WAKEUP_PIN, OUTPUT);
+    digitalWrite(BLE_WAKEUP_PIN, LOW);
+
+    // set up internal status handlers (these are technically optional)
     ble112.onBusy = onBusy;
     ble112.onIdle = onIdle;
     ble112.onTimeout = onTimeout;
 
     // ONLY enable these if you are using the <wakeup_pin> parameter in your firmware's hardware.xml file
     // BLE module must be woken up before sending any UART data
-    //ble112.onBeforeTXCommand = onBeforeTXCommand;
-    //ble112.onTXCommandComplete = onTXCommandComplete;
+    ble112.onBeforeTXCommand = onBeforeTXCommand;
+    ble112.onTXCommandComplete = onTXCommandComplete;
 
     // set up BGLib event handlers
     ble112.ble_evt_system_boot = my_ble_evt_system_boot;
@@ -115,14 +142,17 @@ void setup() {
     // open BLE software serial port
     bleSerialPort.begin(38400);
 
-    my_ble_evt_system_boot( NULL);
+    // reset module (maybe not necessary for your application)
+    digitalWrite(BLE_RESET_PIN, LOW);
+    delay(5); // wait 5ms
+    digitalWrite(BLE_RESET_PIN, HIGH);
 }
 
 // main application loop
 void loop() {
     // keep polling for new data from BLE
     ble112.checkActivity();
-    
+
     // blink Arduino LED based on state:
     //  - solid = STANDBY
     //  - 1 pulse per second = ADVERTISING
@@ -163,12 +193,24 @@ void onIdle() {
 // called when the parser does not read the expected response in the specified time limit
 void onTimeout() {
     // reset module (might be a bit drastic for a timeout condition though)
+    digitalWrite(BLE_RESET_PIN, LOW);
+    delay(5); // wait 5ms
+    digitalWrite(BLE_RESET_PIN, HIGH);
 }
 
 // called immediately before beginning UART TX of a command
 void onBeforeTXCommand() {
     // wake module up (assuming here that digital pin 5 is connected to the BLE wake-up pin)
-   
+    digitalWrite(BLE_WAKEUP_PIN, HIGH);
+
+    // wait for "hardware_io_port_status" event to come through, and parse it (and otherwise ignore it)
+    uint8_t *last;
+    while (1) {
+        ble112.checkActivity();
+        last = ble112.getLastEvent();
+        if (last[0] == 0x07 && last[1] == 0x00) break;
+    }
+
     // give a bit of a gap between parsing the wake-up event and allowing the command to go out
     delayMicroseconds(1000);
 }
@@ -176,7 +218,7 @@ void onBeforeTXCommand() {
 // called immediately after finishing UART TX
 void onTXCommandComplete() {
     // allow module to return to sleep (assuming here that digital pin 5 is connected to the BLE wake-up pin)
-//    digitalWrite(BLE_WAKEUP_PIN, LOW);
+    digitalWrite(BLE_WAKEUP_PIN, LOW);
 }
 
 
@@ -210,18 +252,18 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
     // USE THE FOLLOWING TO LET THE BLE STACK HANDLE YOUR ADVERTISEMENT PACKETS
     // ========================================================================
     // start advertising general discoverable / undirected connectable
-   // ble112.ble_cmd_gap_set_mode(BGLIB_GAP_GENERAL_DISCOVERABLE, BGLIB_GAP_UNDIRECTED_CONNECTABLE);
+    //ble112.ble_cmd_gap_set_mode(BGLIB_GAP_GENERAL_DISCOVERABLE, BGLIB_GAP_UNDIRECTED_CONNECTABLE);
     //while (ble112.checkActivity(1000));
 
     // USE THE FOLLOWING TO HANDLE YOUR OWN CUSTOM ADVERTISEMENT PACKETS
     // =================================================================
-#if 1
+
     // build custom advertisement data
     // default BLE stack value: 0201061107e4ba94c3c9b7cdb09b487a438ae55a19
     uint8 adv_data[] = {
         0x02, // field length
         BGLIB_GAP_AD_TYPE_FLAGS, // field type (0x01)
-        BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE | BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED, // data (0x02 | 0x04 = 0x06)
+        0x06, // data (0x02 | 0x04 = 0x06, general discoverable + BLE only, no BR+EDR)
         0x11, // field length
         BGLIB_GAP_AD_TYPE_SERVICES_128BIT_ALL, // field type (0x07)
         0xe4, 0xba, 0x94, 0xc3, 0xc9, 0xb7, 0xcd, 0xb0, 0x9b, 0x48, 0x7a, 0x43, 0x8a, 0xe5, 0x5a, 0x19
@@ -259,7 +301,7 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
     // put module into discoverable/connectable mode (with user-defined advertisement data)
     ble112.ble_cmd_gap_set_mode(BGLIB_GAP_USER_DATA, BGLIB_GAP_UNDIRECTED_CONNECTABLE);
     while (ble112.checkActivity(1000));
-#endif
+
     // set state to ADVERTISING
     ble_state = BLE_STATE_ADVERTISING;
 }

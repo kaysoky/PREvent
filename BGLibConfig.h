@@ -1,4 +1,39 @@
-// Arduino BGLib code library config file
+// Bluegiga BGLib Arduino interface library config file
+// 2014-02-12 by Jeff Rowberg <jeff@rowberg.net>
+// Updates should (hopefully) always be available at https://github.com/jrowberg/bglib
+
+// Changelog:
+//      2014-02-12 - Update to match SDK build 98
+//                 - Fix major issue with uint8array commands
+//      2014-01-13 - Update to match SDK build 94
+//      2013-03-14 - Add support for packet mode
+//                   Add support for BLE wake-up
+//                   Fix serial data read routine to work properly
+//      2012-11-14 - Initial release
+
+/* ============================================
+BGLib Arduino interface library code is placed under the MIT license
+Copyright (c) 2014 Jeff Rowberg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+===============================================
+*/
 
 #ifndef __BGLIB_CONFIG_H__
 #define __BGLIB_CONFIG_H__
@@ -12,6 +47,7 @@
 #define BGLIB_ENABLE_COMMAND_CLASS_GAP
 #define BGLIB_ENABLE_COMMAND_CLASS_HARDWARE
 #define BGLIB_ENABLE_COMMAND_CLASS_TEST
+#define BGLIB_ENABLE_COMMAND_CLASS_DFU
 
 #define BGLIB_ENABLE_EVENT_CLASS_SYSTEM
 #define BGLIB_ENABLE_EVENT_CLASS_FLASH
@@ -22,6 +58,7 @@
 #define BGLIB_ENABLE_EVENT_CLASS_GAP
 #define BGLIB_ENABLE_EVENT_CLASS_HARDWARE
 #define BGLIB_ENABLE_EVENT_CLASS_TEST
+#define BGLIB_ENABLE_EVENT_CLASS_DFU
 
 #ifdef BGLIB_ENABLE_COMMAND_CLASS_SYSTEM
     #define BGLIB_ENABLE_COMMAND_SYSTEM_RESET
@@ -48,6 +85,7 @@
     #define BGLIB_ENABLE_EVENT_SYSTEM_ENDPOINT_WATERMARK_TX
     #define BGLIB_ENABLE_EVENT_SYSTEM_SCRIPT_FAILURE
     #define BGLIB_ENABLE_EVENT_SYSTEM_NO_LICENSE_KEY
+    #define BGLIB_ENABLE_EVENT_SYSTEM_PROTOCOL_ERROR
 #endif
 
 #ifdef BGLIB_ENABLE_COMMAND_CLASS_FLASH
@@ -58,7 +96,8 @@
     #define BGLIB_ENABLE_COMMAND_FLASH_PS_LOAD
     #define BGLIB_ENABLE_COMMAND_FLASH_PS_ERASE
     #define BGLIB_ENABLE_COMMAND_FLASH_ERASE_PAGE
-    #define BGLIB_ENABLE_COMMAND_FLASH_WRITE_WORDS
+    #define BGLIB_ENABLE_COMMAND_FLASH_WRITE_DATA
+    #define BGLIB_ENABLE_COMMAND_FLASH_READ_DATA
 #endif
 
 #ifdef BGLIB_ENABLE_EVENT_CLASS_FLASH
@@ -176,6 +215,8 @@
     #define BGLIB_ENABLE_COMMAND_HARDWARE_I2C_WRITE
     #define BGLIB_ENABLE_COMMAND_HARDWARE_SET_TXPOWER
     #define BGLIB_ENABLE_COMMAND_HARDWARE_TIMER_COMPARATOR
+    #define BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_ENABLE
+    #define BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_DIRECTION
 #endif
 
 #ifdef BGLIB_ENABLE_EVENT_CLASS_HARDWARE
@@ -191,6 +232,18 @@
     #define BGLIB_ENABLE_COMMAND_TEST_PHY_RESET
     #define BGLIB_ENABLE_COMMAND_TEST_GET_CHANNEL_MAP
     #define BGLIB_ENABLE_COMMAND_TEST_DEBUG
+    #define BGLIB_ENABLE_COMMAND_TEST_CHANNEL_MODE
+#endif
+
+#ifdef BGLIB_ENABLE_COMMAND_CLASS_DFU
+    #define BGLIB_ENABLE_COMMAND_DFU_RESET
+    #define BGLIB_ENABLE_COMMAND_DFU_FLASH_SET_ADDRESS
+    #define BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD
+    #define BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD_FINISH
+#endif
+
+#ifdef BGLIB_ENABLE_EVENT_CLASS_DFU
+    #define BGLIB_ENABLE_EVENT_DFU_BOOT
 #endif
 
 #endif /* __BGLIB_CONFIG_H__ */

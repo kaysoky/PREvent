@@ -1,4 +1,39 @@
-// Arduino BGLib code library header file
+// Bluegiga BGLib Arduino interface library header file
+// 2014-02-12 by Jeff Rowberg <jeff@rowberg.net>
+// Updates should (hopefully) always be available at https://github.com/jrowberg/bglib
+
+// Changelog:
+//      2014-02-12 - Update to match SDK build 98
+//                 - Fix major issue with uint8array commands
+//      2014-01-13 - Update to match SDK build 94
+//      2013-03-14 - Add support for packet mode
+//                   Add support for BLE wake-up
+//                   Fix serial data read routine to work properly
+//      2012-11-14 - Initial release
+
+/* ============================================
+BGLib Arduino interface library code is placed under the MIT license
+Copyright (c) 2014 Jeff Rowberg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+===============================================
+*/
 
 #ifndef __BGLIB_H__
 #define __BGLIB_H__
@@ -78,19 +113,6 @@
 #define BGLIB_GAP_ADV_POLICY_WHITELIST_ALL                          3
 #define BGLIB_GAP_SCAN_POLICY_ALL                                   0
 #define BGLIB_GAP_SCAN_POLICY_WHITELIST                             1
-#define BGLIB_GAP_SCAN_HEADER_ADV_IND                               0
-#define BGLIB_GAP_SCAN_HEADER_ADV_DIRECT_IND                        1
-#define BGLIB_GAP_SCAN_HEADER_ADV_NONCONN_IND                       2
-#define BGLIB_GAP_SCAN_HEADER_SCAN_REQ                              3
-#define BGLIB_GAP_SCAN_HEADER_SCAN_RSP                              4
-#define BGLIB_GAP_SCAN_HEADER_CONNECT_REQ                           5
-#define BGLIB_GAP_SCAN_HEADER_ADV_DISCOVER_IND                      6
-#define BGLIB_GAP_AD_FLAG_LIMITED_DISCOVERABLE                      0x01
-#define BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE                      0x02
-#define BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED                       0x04
-#define BGLIB_GAP_AD_FLAG_SIMULTANEOUS_LEBREDR_CTRL                 0x10
-#define BGLIB_GAP_AD_FLAG_SIMULTANEOUS_LEBREDR_HOST                 0x20
-#define BGLIB_GAP_AD_FLAG_MASK                                      0x1f
 
 #define PACKED __attribute__((packed))
 #define ALIGNED __attribute__((aligned(0x4)))
@@ -268,6 +290,11 @@ struct ble_msg_system_script_failure_evt_t {
     uint16 reason;
 } PACKED;
 #endif
+#ifdef BGLIB_ENABLE_EVENT_SYSTEM_PROTOCOL_ERROR
+struct ble_msg_system_protocol_error_evt_t {
+    uint16 reason;
+} PACKED;
+#endif
 #ifdef BGLIB_ENABLE_COMMAND_FLASH_PS_SAVE
 struct ble_msg_flash_ps_save_cmd_t {
     uint16 key;
@@ -300,11 +327,23 @@ struct ble_msg_flash_erase_page_rsp_t {
     uint16 result;
 } PACKED;
 #endif
-#ifdef BGLIB_ENABLE_COMMAND_FLASH_WRITE_WORDS
-struct ble_msg_flash_write_words_cmd_t {
-    uint16 address;
-    uint8 words_len;
-    const uint8 *words_data;
+#ifdef BGLIB_ENABLE_COMMAND_FLASH_WRITE_DATA
+struct ble_msg_flash_write_data_cmd_t {
+    uint32 address;
+    uint8 data_len;
+    const uint8 *data_data;
+} PACKED;
+struct ble_msg_flash_write_data_rsp_t {
+    uint16 result;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_FLASH_READ_DATA
+struct ble_msg_flash_read_data_cmd_t {
+    uint32 address;
+    uint8 length;
+} PACKED;
+struct ble_msg_flash_read_data_rsp_t {
+    uint8array data;
 } PACKED;
 #endif
 #ifdef BGLIB_ENABLE_EVENT_FLASH_PS_KEY
@@ -1039,6 +1078,24 @@ struct ble_msg_hardware_timer_comparator_rsp_t {
     uint16 result;
 } PACKED;
 #endif
+#ifdef BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_ENABLE
+struct ble_msg_hardware_io_port_irq_enable_cmd_t {
+    uint8 port;
+    uint8 enable_bits;
+} PACKED;
+struct ble_msg_hardware_io_port_irq_enable_rsp_t {
+    uint16 result;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_DIRECTION
+struct ble_msg_hardware_io_port_irq_direction_cmd_t {
+    uint8 port;
+    uint8 falling_edge;
+} PACKED;
+struct ble_msg_hardware_io_port_irq_direction_rsp_t {
+    uint16 result;
+} PACKED;
+#endif
 #ifdef BGLIB_ENABLE_EVENT_HARDWARE_IO_PORT_STATUS
 struct ble_msg_hardware_io_port_status_evt_t {
     uint32 timestamp;
@@ -1087,6 +1144,43 @@ struct ble_msg_test_debug_cmd_t {
 } PACKED;
 struct ble_msg_test_debug_rsp_t {
     uint8array output;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_TEST_CHANNEL_MODE
+struct ble_msg_test_channel_mode_cmd_t {
+    uint8 mode;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_DFU_RESET
+struct ble_msg_dfu_reset_cmd_t {
+    uint8 dfu;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_SET_ADDRESS
+struct ble_msg_dfu_flash_set_address_cmd_t {
+    uint32 address;
+} PACKED;
+struct ble_msg_dfu_flash_set_address_rsp_t {
+    uint16 result;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD
+struct ble_msg_dfu_flash_upload_cmd_t {
+    uint8 data_len;
+    const uint8 *data_data;
+} PACKED;
+struct ble_msg_dfu_flash_upload_rsp_t {
+    uint16 result;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD_FINISH
+struct ble_msg_dfu_flash_upload_finish_rsp_t {
+    uint16 result;
+} PACKED;
+#endif
+#ifdef BGLIB_ENABLE_EVENT_DFU_BOOT
+struct ble_msg_dfu_boot_evt_t {
+    uint32 version;
 } PACKED;
 #endif
 
@@ -1182,8 +1276,11 @@ class BGLib {
         #ifdef BGLIB_ENABLE_COMMAND_FLASH_ERASE_PAGE
             uint8_t ble_cmd_flash_erase_page(uint8 page);
         #endif
-        #ifdef BGLIB_ENABLE_COMMAND_FLASH_WRITE_WORDS
-            uint8_t ble_cmd_flash_write_words(uint16 address, uint8 words_len, const uint8 *words_data);
+        #ifdef BGLIB_ENABLE_COMMAND_FLASH_WRITE_DATA
+            uint8_t ble_cmd_flash_write_data(uint32 address, uint8 data_len, const uint8 *data_data);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_FLASH_READ_DATA
+            uint8_t ble_cmd_flash_read_data(uint32 address, uint8 length);
         #endif
         #ifdef BGLIB_ENABLE_COMMAND_ATTRIBUTES_WRITE
             uint8_t ble_cmd_attributes_write(uint16 handle, uint8 offset, uint8 value_len, const uint8 *value_data);
@@ -1359,6 +1456,12 @@ class BGLib {
         #ifdef BGLIB_ENABLE_COMMAND_HARDWARE_TIMER_COMPARATOR
             uint8_t ble_cmd_hardware_timer_comparator(uint8 timer, uint8 channel, uint8 mode, uint16 comparator_value);
         #endif
+        #ifdef BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_ENABLE
+            uint8_t ble_cmd_hardware_io_port_irq_enable(uint8 port, uint8 enable_bits);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_DIRECTION
+            uint8_t ble_cmd_hardware_io_port_irq_direction(uint8 port, uint8 falling_edge);
+        #endif
         #ifdef BGLIB_ENABLE_COMMAND_TEST_PHY_TX
             uint8_t ble_cmd_test_phy_tx(uint8 channel, uint8 length, uint8 type);
         #endif
@@ -1376,6 +1479,21 @@ class BGLib {
         #endif
         #ifdef BGLIB_ENABLE_COMMAND_TEST_DEBUG
             uint8_t ble_cmd_test_debug(uint8 input_len, const uint8 *input_data);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_TEST_CHANNEL_MODE
+            uint8_t ble_cmd_test_channel_mode(uint8 mode);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_RESET
+            uint8_t ble_cmd_dfu_reset(uint8 dfu);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_SET_ADDRESS
+            uint8_t ble_cmd_dfu_flash_set_address(uint32 address);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD
+            uint8_t ble_cmd_dfu_flash_upload(uint8 data_len, const uint8 *data_data);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD_FINISH
+            uint8_t ble_cmd_dfu_flash_upload_finish();
         #endif
 
         #ifdef BGLIB_ENABLE_COMMAND_SYSTEM_RESET
@@ -1444,8 +1562,11 @@ class BGLib {
         #ifdef BGLIB_ENABLE_COMMAND_FLASH_ERASE_PAGE
             void (*ble_rsp_flash_erase_page)(const struct ble_msg_flash_erase_page_rsp_t *msg);
         #endif
-        #ifdef BGLIB_ENABLE_COMMAND_FLASH_WRITE_WORDS
-            void (*ble_rsp_flash_write_words)(const struct ble_msg_flash_write_words_rsp_t *msg);
+        #ifdef BGLIB_ENABLE_COMMAND_FLASH_WRITE_DATA
+            void (*ble_rsp_flash_write_data)(const struct ble_msg_flash_write_data_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_FLASH_READ_DATA
+            void (*ble_rsp_flash_read_data)(const struct ble_msg_flash_read_data_rsp_t *msg);
         #endif
         #ifdef BGLIB_ENABLE_COMMAND_ATTRIBUTES_WRITE
             void (*ble_rsp_attributes_write)(const struct ble_msg_attributes_write_rsp_t *msg);
@@ -1621,6 +1742,12 @@ class BGLib {
         #ifdef BGLIB_ENABLE_COMMAND_HARDWARE_TIMER_COMPARATOR
             void (*ble_rsp_hardware_timer_comparator)(const struct ble_msg_hardware_timer_comparator_rsp_t *msg);
         #endif
+        #ifdef BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_ENABLE
+            void (*ble_rsp_hardware_io_port_irq_enable)(const struct ble_msg_hardware_io_port_irq_enable_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_HARDWARE_IO_PORT_IRQ_DIRECTION
+            void (*ble_rsp_hardware_io_port_irq_direction)(const struct ble_msg_hardware_io_port_irq_direction_rsp_t *msg);
+        #endif
         #ifdef BGLIB_ENABLE_COMMAND_TEST_PHY_TX
             void (*ble_rsp_test_phy_tx)(const struct ble_msg_test_phy_tx_rsp_t *msg);
         #endif
@@ -1638,6 +1765,21 @@ class BGLib {
         #endif
         #ifdef BGLIB_ENABLE_COMMAND_TEST_DEBUG
             void (*ble_rsp_test_debug)(const struct ble_msg_test_debug_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_TEST_CHANNEL_MODE
+            void (*ble_rsp_test_channel_mode)(const struct ble_msg_test_channel_mode_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_RESET
+            void (*ble_rsp_dfu_reset)(const struct ble_msg_dfu_reset_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_SET_ADDRESS
+            void (*ble_rsp_dfu_flash_set_address)(const struct ble_msg_dfu_flash_set_address_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD
+            void (*ble_rsp_dfu_flash_upload)(const struct ble_msg_dfu_flash_upload_rsp_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_COMMAND_DFU_FLASH_UPLOAD_FINISH
+            void (*ble_rsp_dfu_flash_upload_finish)(const struct ble_msg_dfu_flash_upload_finish_rsp_t *msg);
         #endif
 
         #ifdef BGLIB_ENABLE_EVENT_SYSTEM_BOOT
@@ -1657,6 +1799,9 @@ class BGLib {
         #endif
         #ifdef BGLIB_ENABLE_EVENT_SYSTEM_NO_LICENSE_KEY
             void (*ble_evt_system_no_license_key)(const struct ble_msg_system_no_license_key_evt_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_EVENT_SYSTEM_PROTOCOL_ERROR
+            void (*ble_evt_system_protocol_error)(const struct ble_msg_system_protocol_error_evt_t *msg);
         #endif
         #ifdef BGLIB_ENABLE_EVENT_FLASH_PS_KEY
             void (*ble_evt_flash_ps_key)(const struct ble_msg_flash_ps_key_evt_t *msg);
@@ -1735,6 +1880,9 @@ class BGLib {
         #endif
         #ifdef BGLIB_ENABLE_EVENT_HARDWARE_ADC_RESULT
             void (*ble_evt_hardware_adc_result)(const struct ble_msg_hardware_adc_result_evt_t *msg);
+        #endif
+        #ifdef BGLIB_ENABLE_EVENT_DFU_BOOT
+            void (*ble_evt_dfu_boot)(const struct ble_msg_dfu_boot_evt_t *msg);
         #endif
 
     private:
