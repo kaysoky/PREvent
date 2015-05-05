@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter new data"
+        android:id="@+id/enterDataButton"
+        android:padding="10dp"
+        android:layout_margin="50dp"
+        android:onClick="enterData"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="my statistic"
+        android:id="@+id/showStatButton"
+        android:padding="10dp"
+        android:layout_margin="50dp"
+        android:onClick="showStat"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="check map"
+        android:id="@+id/showMapButton"
+        android:padding="10dp"
+        android:layout_margin="50dp"
+        android:onClick="showMap"/>
+
+</LinearLayout>
