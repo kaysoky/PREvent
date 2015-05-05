@@ -1,0 +1,16 @@
+Bluegiga main project structure:
+
+- assets - all services, characteristics and descriptors XML from 'bluetooth.org'. XML contains definitions for GATTs.
+- libs - external libraries
+- res - all resources used in project
+-- drawable - graphics split into categories based on device screen size. Standard Android structure.
+-- layout - custom view layout used in project.
+-- menu - custom menu options
+-- values - definitions of constants used in project, e.g. Bluegiga Theme, Bluegiga preferred colours, strings, etc...
+
+- src - main source code directory
+-- com.bluegiga.BLEDemo - reverse domain name. Files with UI part of applications(activities)
+--- datamodel - data model classes, utility classes, UI-datamodel bridges, 
+---- xml - definitions of datamodel classes for XML, used by BluetoothXmlParser
+
+Bluegiga Smart utilize 'android-tree-view' open source components. Source code can be found here: https://code.google.com/p/tree-view-list-android/

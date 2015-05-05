@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -->
+<!-- Bluegiga’s Bluetooth Smart Android SW for Bluegiga BLE modules -->
+<!-- Contact: support@bluegiga.com. -->
+<!--  -->
+<!-- This is free software distributed under the terms of the MIT license reproduced below. -->
+<!--  -->
+<!-- Copyright (c) 2013, Bluegiga Technologies -->
+<!--  -->
+<!-- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files ("Software") -->
+<!-- to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, -->
+<!-- and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: -->
+<!--  -->
+<!-- THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF -->
+<!-- ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT -->
+<!-- NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A  PARTICULAR PURPOSE. -->
+<!--  -->
+<resources>
+
+    <string-array name="properties_array">
+        <item>Broadcast</item>
+        <item>Read</item>
+        <item>Write no response</item>
+        <item>Write</item>
+        <item>Notify</item>
+        <item>Indicate</item>
+        <item>Signed write</item>
+        <item>Extended props</item>
+    </string-array>
+
+    <string name="app_name">Bluegiga Smart</string>
+    <string name="uuid">UUID: </string>
+    <string name="properties">Properties: </string>
+    <string name="devices">DEVICES</string>
+    <string name="scanning">SCANNING&#8230;</string>
+    <string name="not_scanning"></string>
+    <string name="services">SERVICES</string>
+    <string name="characteristics">CHARACTERISTICS</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="values">VALUES</string>
+    <string name="properties_big_case">PROPERTIES: </string>
+    <string name="hex">Hex</string>
+    <string name="ascii">ASCII</string>
+    <string name="decimal">Decimal</string>
+    <string name="unknown_device">Unknown device</string>
+    <string name="unknown_service">Unknown service</string>
+    <string name="unknown_characteristic">Unknown characteristic</string>
+    <string name="characteristic_write_success">Characteristic write success</string>
+    <string name="characteristic_write_fail">Characteristic write fail</string>
+    <string name="invalid_dec_value">Value is invalid. You have to input max 3 digits side by side and max value is 255.</string>
+    <string name="parse_problem">The problem occurred during characteristic parsing.</string>
+    <string name="ble_not_supported">Your phone does not support Bluetooth Low Energy technology. Application will be closed! </string>
+    <string name="bluetooth_not_supported">Your phone does not support Bluetooth technology. Application will be closed! </string>
+    <string name="no_bluetooth_dialog_text">You need Bluetooth to use this app. Switch on Bluetooth?</string>
+    <string name="no_bluetooth_dialog_title_text">Bluetooth is off</string>
+    <string name="aboutMenuCaption">About</string>
+    <string name="banner_text">Bluegiga Bluetooth 4.0 Modules</string>
+    <string name="rssi">RSSI: </string>
+    <string name="mac_address">Mac Address: </string>
+    <string name="no_devices_found">No devices found.</string>
+    <string name="advertisement_details">Show advertisement details</string>
+    <string name="advertisement_details_title">Advertisement details</string>
+    <string name="connecting_title">Bluetooth manager</string>
+    <string name="connecting">Connecting to device. Please wait&#8230;</string>
+    <string name="invalid_uuids_title_text">Invalid UUIDs</string>
+    <string name="invalid_uuids_text">There are more than one UUID with the same value. Please check device configuration.</string>
+    <string name="tree_view_unknown_error_title_text">Unknown error</string>
+    <string name="tree_view_unknown_error_text">Unknown error occurred while building user interface. Probably it can be something wrong with Bluetooth Low Energy device. Please check device configuration.</string>
+
+</resources>

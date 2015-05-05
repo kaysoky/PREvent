@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -->
+<!-- Bluegiga's Bluetooth Smart Android SW for Bluegiga BLE modules -->
+<!-- Contact: support@bluegiga.com. -->
+<!--  -->
+<!-- This is free software distributed under the terms of the MIT license reproduced below. -->
+<!--  -->
+<!-- Copyright (c) 2013, Bluegiga Technologies -->
+<!--  -->
+<!-- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files ("Software") -->
+<!-- to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, -->
+<!-- and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: -->
+<!--  -->
+<!-- THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF -->
+<!-- ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT -->
+<!-- NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A  PARTICULAR PURPOSE. -->
+<!--  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/BluegigaLightBlue"
+    tools:context=".MainActivity" >
+    
+    <RelativeLayout 
+        android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_above="@+id/banner"
+	    android:padding="15dp"
+	    android:paddingBottom="@dimen/activity_vertical_margin"
+	    android:paddingLeft="@dimen/activity_horizontal_margin"
+	    android:paddingRight="@dimen/activity_horizontal_margin"
+	    android:paddingTop="@dimen/activity_vertical_margin">
+	    
+        <TextView
+	        android:id="@+id/devicesLabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/devices"
+	        android:textColor="@color/BluegigaDarkGrey"
+	        android:textSize="18sp" />
+
+	    <View
+	        android:id="@+id/horizontalDevicesLabel"
+	        android:layout_width="fill_parent"
+	        android:layout_height="2dp"
+	        android:layout_marginBottom="1dp"
+	        android:layout_below="@id/devicesLabel"
+	        android:background="@color/BluegigaDarkGrey" />
+
+	    <GridView
+	        android:id="@+id/deviceGrid"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_below="@id/horizontalDevicesLabel"
+	        android:gravity="center"
+	        android:numColumns="1"
+	        android:stretchMode="columnWidth" />
+	    
+	    <TextView
+	        android:id="@+id/noDevicesFoundLabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	       	android:layout_centerInParent="true"
+	       	android:visibility="invisible"
+	        android:text="@string/no_devices_found"
+	        android:textColor="@color/BluegigaDarkGrey"
+	        android:textSize="22sp"
+	        android:textStyle="italic" />
+        
+    </RelativeLayout>
+
+    <include
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" 
+        android:id="@+id/banner"
+        layout="@layout/banner"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>
