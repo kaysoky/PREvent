@@ -11,3 +11,8 @@ android update project --target 1 --path . --subprojects
 ```
 ant debug
 ```
+
+## To install: 
+```
+adb install bin/PREventCompanion-debug.apk
+```
