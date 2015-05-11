@@ -1,0 +1,122 @@
+{% extends "rest_framework/base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load rest_framework %}
+
+{% block body %}
+<body class="{% block bodyclass %}{% endblock %}">
+
+    <div class="wrapper">
+
+        {% block navbar %}
+            <div class="navbar navbar-static-top {% block bootstrap_navbar_variant %}navbar-inverse{% endblock %}">
+                <div class="container">
+                    <span>
+                        {% block branding %}
+                            <a class='navbar-brand' rel="nofollow" href='/'>
+                                PREvent
+                            </a>
+                        {% endblock %}
+                    </span>
+                    <ul class="nav navbar-nav pull-right">
+                        {% block userlinks %}
+                            {% if user.is_authenticated %}
+                                {% optional_logout request user %}
+                            {% else %}
+                                <li><a href="register/">Register</a></li>
+                                {% optional_login request %}
+                            {% endif %}
+                        {% endblock %}
+                    </ul>
+                </div>
+            </div>
+        {% endblock %}
+
+        <div class="container">
+            <ul class="breadcrumb"></ul>
+            <div id="content">
+                <div class="content-main">
+                    <div class="page-header">
+                        <h1>Map UI (in development)</h1>
+                    </div>
+                    <div>
+                        <input id="tempMapCheck" type="checkbox" /> Temperature Map </br>
+                        <input id="humiMapCheck" type="checkbox" /> Humidity Map </br>
+                        <input id="partMapCheck" type="checkbox" /> PM 2.5 Map </br>
+                        <input id="gassMapCheck" type="checkbox" /> Volatile Organics Map
+                    </div>
+                    <div id="map-canvas" style="height: 500px"></div>
+                </div>
+            <div>
+        <div>
+
+    </div><!-- ./wrapper -->
+
+    {% block script %}
+        <script src="{% static "rest_framework/js/jquery-1.8.1-min.js" %}"></script>
+        <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
+        <script src="{% static "rest_framework/js/default.js" %}"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <script src="{% static "heatmap.min.js" %}"></script>
+        <script src="{% static "gmaps-heatmap.js" %}"></script>
+        <script>
+            // map center
+            var myLatlng = new google.maps.LatLng(47.657252, -122.311084);
+            // map options,
+            var myOptions = {
+                zoom: 10,
+                center: myLatlng
+            };
+            // standard map
+            map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+            $.get('/data/').done(function(data) {
+                var temperature = [];
+                for (var index in data) {
+                    temperature.push({
+                        lat: data[index].ycoord, 
+                        lng: data[index].xcoord, 
+                        value: data[index].temperature
+                    });
+                }
+
+                // heatmap layer
+                tempHeatmap = new HeatmapOverlay(map,
+                  {
+                    // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+                    "radius": 0.5,
+                    "maxOpacity": 1,
+                    // scales the radius based on map zoom
+                    "scaleRadius": true,
+                    // if set to false the heatmap uses the global maximum for colorization
+                    // if activated: uses the data maximum within the current map boundaries
+                    //   (there will always be a red spot with useLocalExtremas true)
+                    "useLocalExtrema": true
+                  }
+                );
+
+                var testData = {
+                  max: 10,
+                  data: temperature
+                };
+
+                /*$('#tempMapCheck').click(function() {
+                    $(this).is(':checked') ? testData : 
+                    teampHeatmap.repaint()
+                    tempHeatmap.setData({max: 1, data: []});
+                });*/
+            
+                if($("#tempMapCheck").prop("checked", true)) {
+                    alert('Test')
+                    tempHeatmap.setData(testData);
+                } else {
+                    alert('NO')
+                }
+                if($("#humiMapCheck").is(':checked')) {
+                    tempHeatmap.setData(testData);
+                }
+            });
+        </script>
+    {% endblock %}
+</body>
+{% endblock %}
