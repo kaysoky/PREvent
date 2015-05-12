@@ -62,32 +62,25 @@
         </script>
         <script>
         var map, pointarray, heatmap;
-        var temp = [];
+
+        function getData(sensor) {
+           alert(sensor)
+           var temp = [];
            $.get('/data/').done(function(data) {
                 for (var index in data) {
                     temp.push({
                         location: new google.maps.LatLng(data[index].ycoord, 
                           data[index].xcoord), 
-                        weight: data[index].temperature
+                        weight: data[index][sensor]
                     });
                 }
+
             });
+            return temp
+        }
 
 
-           /* var temp = [
-              {location: new google.maps.LatLng(37.778535, -122.419922), weight: 4},
-              {location: new google.maps.LatLng(37.774547, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774548, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774549, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774542, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774543, -122.433523), weight: 3},
-              {location: new google.maps.LatLng(37.774544, -122.433523), weight: 3},
-              {location: new google.maps.LatLng(37.774541, -122.433523), weight: 3},
-              {location: new google.maps.LatLng(37.774546, -122.433524), weight: 3},
-              {location: new google.maps.LatLng(37.774546, -122.433525), weight: 3},
-
-            ];*/
-            function initialize() {
+            function initialize(sensor) {
               var mapOptions = {
                 zoom: 9,
                 center: new google.maps.LatLng(47.450580, -122.307496),
@@ -97,29 +90,33 @@
               map = new google.maps.Map(document.getElementById('map-canvas'),
                   mapOptions);
 
+              var temp = getData(sensor)
               var pointArray = new google.maps.MVCArray(temp);
 
               heatmap = new google.maps.visualization.HeatmapLayer({
                 data: pointArray
               });
-
+              alert('jay')
               heatmap.setMap(map);
+            }
+
+            function changeLayer(sensor) {
+              var temp = getData(sensor)
+              var pointArray = new google.maps.MVCArray(temp);
+
+              heatmap = new google.maps.visualization.HeatmapLayer({
+                data: pointArray
+              });
+              alert(sensor + "changed")
+              heatmap.setMap(map);  
+              changeGradient();          
             }
 
             function toggleHeatmap() {
               heatmap.setMap(heatmap.getMap() ? null : map);
             }
 
-            function changeValue(weight) {
-              heatmap.set('radius', heatmap.get('radius') ? null : weight)
-              changeOpacity(weight)
-            }
-
-            function setValues() {
-
-            }
-
-            function changeGradient(weight) {
+            function changeGradient() {
               var gradient = [
                 'rgba(0, 255, 255, 0)',
                 'rgba(0, 255, 255, 1)',
@@ -162,14 +159,15 @@
               heatmap.set('opacity', heatmap.get('opacity') ? null : weight*.1);
             }
 
-            google.maps.event.addDomListener(window, 'load', initialize);
+            google.maps.event.addDomListener(window, 'load', initialize('temperature'));
+
         </script>
     {% endblock %}
     <div id="panel">
-      <button onclick="toggleHeatmap()">Temperature</button>
-      <button onclick="changeGradient()">Humidity</button>
-      <button onclick="changeRadius()">Volatile Organic</button>
-      <button onclick="changeVolatile()">Particle 2.5</button>
+      <button onclick="changeLayer('temperature')">Temperature</button>
+      <button onclick="changeLayer('humidity')">Humidity</button>
+      <button onclick="changeLayer('gas')">Volatile Organic</button>
+      <button onclick="changeLayer('particulate')">Particle 2.5</button>
     </div>
     <div id="map-canvas"></div>
   </body>
