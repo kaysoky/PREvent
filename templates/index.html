@@ -39,139 +39,122 @@
                     <div class="page-header">
                         <h1>Map UI (in development)</h1>
                     </div>
-                    <div>
-                        <!--<input id="tempMapCheck" type="checkbox" /> Temperature Map </br>
-                        <input id="humiMapCheck" type="checkbox" /> Humidity Map </br>
-                        <input id="partMapCheck" type="checkbox" /> PM 2.5 Map </br>
-                        <input id="gassMapCheck" type="checkbox" /> Volatile Organics Map//-->
-                    </div>
                     <div id="map-canvas" style="height: 500px"></div>
+                    <div>
+                        <div id="panel">
+                          <button onclick="toggleHeatmap()">Temperature</button>
+                          <button onclick="changeGradient()">Humidity</button>
+                          <button onclick="changeRadius()">Volatile Organic</button>
+                          <button onclick="changeVolatile()">Particle 2.5</button>
+                        </div>
+                    </div>
                 </div>
             <div>
         <div>
-
     </div><!-- ./wrapper -->
 
     {% block script %}
-        <script src="{% static "rest_framework/js/jquery-1.8.1-min.js" %}"></script>
-        <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
-        <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
-        <script src="{% static "rest_framework/js/default.js" %}"></script>
+        <script src="{% static 'rest_framework/js/jquery-1.8.1-min.js' %}"></script>
+        <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
+        <script src="{% static 'rest_framework/js/default.js' %}"></script>
         <script type="text/javascript"
-          src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
+            src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
         </script>
         <script>
-        var map, pointarray, heatmap;
-        var temp = [];
-           $.get('/data/').done(function(data) {
+            // Fetch data from the server
+            var temp = [];
+            var humi = [];
+            var part = [];
+            var vocs = [];
+            $.get('/data/').done(function(data) {
                 for (var index in data) {
-                    temp.push({
-                        location: new google.maps.LatLng(data[index].ycoord, 
-                          data[index].xcoord), 
-                        weight: data[index].temperature
-                    });
+                    var coord = new google.maps.LatLng(data[index].ycoord, data[index].xcoord);
+                    temp.push({ location: coord, weight: data[index].temperature });
+                    humi.push({ location: coord, weight: data[index].humidity });
+                    part.push({ location: coord, weight: data[index].particulate });
+                    vocs.push({ location: coord, weight: data[index].gas });
                 }
             });
 
-
-           /* var temp = [
-              {location: new google.maps.LatLng(37.778535, -122.419922), weight: 4},
-              {location: new google.maps.LatLng(37.774547, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774548, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774549, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774542, -122.433523), weight: 2},
-              {location: new google.maps.LatLng(37.774543, -122.433523), weight: 3},
-              {location: new google.maps.LatLng(37.774544, -122.433523), weight: 3},
-              {location: new google.maps.LatLng(37.774541, -122.433523), weight: 3},
-              {location: new google.maps.LatLng(37.774546, -122.433524), weight: 3},
-              {location: new google.maps.LatLng(37.774546, -122.433525), weight: 3},
-
-            ];*/
+            var map;
+            var heatmap;
             function initialize() {
-              var mapOptions = {
-                zoom: 9,
-                center: new google.maps.LatLng(47.450580, -122.307496),
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-              };
+                var mapOptions = {
+                    zoom: 9,
+                    // TEMP: Center map over Seattle
+                    center: new google.maps.LatLng(47.450580, -122.307496),
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+              
+                // Initialize Google Maps layer
+                map = new google.maps.Map(document.getElementById('map-canvas'),
+                    mapOptions);
 
-              map = new google.maps.Map(document.getElementById('map-canvas'),
-                  mapOptions);
+                // Initialize temperature heatmap layer
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: new google.maps.MVCArray(temp)
+                });
 
-              var pointArray = new google.maps.MVCArray(temp);
-
-              heatmap = new google.maps.visualization.HeatmapLayer({
-                data: pointArray
-              });
-
-              heatmap.setMap(map);
+                heatmap.setMap(map);
             }
 
+            // Toggles the temperature heatmap on/off
             function toggleHeatmap() {
-              heatmap.setMap(heatmap.getMap() ? null : map);
+                heatmap.setMap(heatmap.getMap() ? null : map);
             }
 
+            // WARNING: unused
             function changeValue(weight) {
-              heatmap.set('radius', heatmap.get('radius') ? null : weight)
-              changeOpacity(weight)
-            }
-
-            function setValues() {
-
+                heatmap.set('radius', heatmap.get('radius') ? null : weight);
+                changeOpacity(weight);
             }
 
             function changeGradient(weight) {
-              var gradient = [
-                'rgba(0, 255, 255, 0)',
-                'rgba(0, 255, 255, 1)',
-                'rgba(0, 191, 255, 1)',
-                'rgba(0, 127, 255, 1)',
-                'rgba(0, 63, 255, 1)',
-                'rgba(0, 0, 255, 1)',
-                'rgba(0, 0, 223, 1)',
-                'rgba(0, 0, 191, 1)',
-                'rgba(0, 0, 159, 1)',
-                'rgba(0, 0, 127, 1)',
-                'rgba(63, 0, 91, 1)',
-                'rgba(127, 0, 63, 1)',
-                'rgba(191, 0, 31, 1)',
-                'rgba(255, 0, 0, 1)'
-              ]
-              heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+                var gradient = [
+                    'rgba(0, 255, 255, 0)',
+                    'rgba(0, 255, 255, 1)',
+                    'rgba(0, 191, 255, 1)',
+                    'rgba(0, 127, 255, 1)',
+                    'rgba(0, 63, 255, 1)',
+                    'rgba(0, 0, 255, 1)',
+                    'rgba(0, 0, 223, 1)',
+                    'rgba(0, 0, 191, 1)',
+                    'rgba(0, 0, 159, 1)',
+                    'rgba(0, 0, 127, 1)',
+                    'rgba(63, 0, 91, 1)',
+                    'rgba(127, 0, 63, 1)',
+                    'rgba(191, 0, 31, 1)',
+                    'rgba(255, 0, 0, 1)'
+                ]
+                heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
             }
 
             function changeRadius() {
-               var gradient2 = [
-                'rgba(0, 128, 128, 0)',
-                'rgba(0, 255, 255, 1)',
-                'rgba(0, 191, 255, 1)',
-                'rgba(0, 127, 255, 1)',
-                'rgba(0, 63, 255, 1)',
-                'rgba(0, 0, 255, 1)'
-              ]
-              heatmap.set('gradient', heatmap.get('gradient') ? null: gradient2)
-              heatmap.set('radius', heatmap.get('radius') ? null : 20);
+                var gradient2 = [
+                    'rgba(0, 128, 128, 0)',
+                    'rgba(0, 255, 255, 1)',
+                    'rgba(0, 191, 255, 1)',
+                    'rgba(0, 127, 255, 1)',
+                    'rgba(0, 63, 255, 1)',
+                    'rgba(0, 0, 255, 1)'
+                ]
+                heatmap.set('gradient', heatmap.get('gradient') ? null: gradient2)
+                heatmap.set('radius', heatmap.get('radius') ? null : 20);
             }
 
             function changeVolatile() {
-                //heatmap.set('gradient', heatmap.get('gradient') ? null: gradient3)
                 heatmap.set('radius', heatmap.get('radius') ? null : 15)
                 heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
             }
 
             function changeOpacity(weight) {
-              heatmap.set('opacity', heatmap.get('opacity') ? null : weight*.1);
+                heatmap.set('opacity', heatmap.get('opacity') ? null : weight * 0.1);
             }
 
             google.maps.event.addDomListener(window, 'load', initialize);
         </script>
     {% endblock %}
-    <div id="panel">
-      <button onclick="toggleHeatmap()">Temperature</button>
-      <button onclick="changeGradient()">Humidity</button>
-      <button onclick="changeRadius()">Volatile Organic</button>
-      <button onclick="changeVolatile()">Particle 2.5</button>
-    </div>
-    <div id="map-canvas"></div>
   </body>
 </html>
 {% endblock %}
