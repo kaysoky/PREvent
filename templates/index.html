@@ -39,137 +39,128 @@
                     <div class="page-header">
                         <h1>Map UI (in development)</h1>
                     </div>
-                    <div>
-                        <!--<input id="tempMapCheck" type="checkbox" /> Temperature Map </br>
-                        <input id="humiMapCheck" type="checkbox" /> Humidity Map </br>
-                        <input id="partMapCheck" type="checkbox" /> PM 2.5 Map </br>
-                        <input id="gassMapCheck" type="checkbox" /> Volatile Organics Map//-->
-                    </div>
                     <div id="map-canvas" style="height: 500px"></div>
+                    <div>
+                        <div id="panel">
+                          <button onclick="toggleTempMap()">Temperature</button>
+                          <button onclick="toggleHumiMap()">Humidity</button>
+                          <button onclick="toggleVocsMap()">Volatile Organic</button>
+                          <button onclick="togglePartMap()">Particle 2.5</button>
+                          <h2>Average Temperature:</h2> <h2 id="tempMean"></h2>
+                          <h2>Average Humidity:</h2> <h2 id="humiMean"></h2>
+                          <h2>Average Particulate:</h2> <h2 id="partMean"></h2>
+                          <h2>Average Volatile Organic:</h2> <h2 id="vocsMean"></h2>
+                        </div>
+                    </div>
                 </div>
             <div>
         <div>
-
     </div><!-- ./wrapper -->
 
     {% block script %}
-        <script src="{% static "rest_framework/js/jquery-1.8.1-min.js" %}"></script>
-        <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
-        <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
-        <script src="{% static "rest_framework/js/default.js" %}"></script>
+        <script src="{% static 'rest_framework/js/jquery-1.8.1-min.js' %}"></script>
+        <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
+        <script src="{% static 'rest_framework/js/default.js' %}"></script>
         <script type="text/javascript"
-          src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
+            src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
         </script>
         <script>
-        var map, pointarray, heatmap;
+            // Fetch data from the server
+            var temp = [];
+            var humi = [];
+            var part = [];
+            var vocs = [];
+            function fetchData() {
+            	$.get('/data/').done(function(data) {
+	                for (var index in data) {
+	                    var coord = new google.maps.LatLng(data[index].ycoord, data[index].xcoord);
+	                    temp.push({ location: coord, weight: data[index].temperature });
+	                    humi.push({ location: coord, weight: data[index].humidity });
+	                    part.push({ location: coord, weight: data[index].particulate });
+	                    vocs.push({ location: coord, weight: data[index].gas });
+	                }
+	                averages();
+	                initialize();
+	            });
+	        }
+			function averages()	{
+				var tempMean = 0;
+	        	var humiMean = 0;
+	        	var partMean = 0;
+	        	var vocsMean = 0;
+				for(var i = 0; i < temp.length; i++) {
+					tempMean = tempMean + temp[i]['weight']
+					humiMean = humiMean + humi[i]['weight']
+					partMean = partMean + part[i]['weight']
+					vocsMean = vocsMean + vocs[i]['weight']
+				}
+				document.getElementById("tempMean").innerHTML = tempMean/temp.length;
+				document.getElementById("humiMean").innerHTML = humiMean/temp.length;
+				document.getElementById("partMean").innerHTML = partMean/temp.length;
+				document.getElementById("vocsMean").innerHTML = vocsMean/temp.length;
+			};	        
 
-        function getData(sensor) {
-           alert(sensor)
-           var temp = [];
-           $.get('/data/').done(function(data) {
-                for (var index in data) {
-                    temp.push({
-                        location: new google.maps.LatLng(data[index].ycoord, 
-                          data[index].xcoord), 
-                        weight: data[index][sensor]
-                    });
-                }
+            var map;
+            var tempHeatmap;
+            var humiHeatmap;
+            var partHeatmap;
+            var vocsHeatmap;
+            function initialize() {
+                var mapOptions = {
+                    zoom: 9,
+                    // TEMP: Center map over Seattle
+                    center: new google.maps.LatLng(47.450580, -122.307496),
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+              
+                // Initialize Google Maps layer
+                map = new google.maps.Map(document.getElementById('map-canvas'),
+                    mapOptions);
 
-            });
-            return temp
-        }
-
-
-            function initialize(sensor) {
-              var mapOptions = {
-                zoom: 9,
-                center: new google.maps.LatLng(47.450580, -122.307496),
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-              };
-
-              map = new google.maps.Map(document.getElementById('map-canvas'),
-                  mapOptions);
-
-              var temp = getData(sensor)
-              var pointArray = new google.maps.MVCArray(temp);
-
-              heatmap = new google.maps.visualization.HeatmapLayer({
-                data: pointArray
-              });
-              alert('jay')
-              heatmap.setMap(map);
+				tempHeatmap = new google.maps.visualization.HeatmapLayer({
+                    data: new google.maps.MVCArray(temp)
+                });
+                humiHeatmap = new google.maps.visualization.HeatmapLayer({
+                    data: new google.maps.MVCArray(humi)
+                });
+                partHeatmap = new google.maps.visualization.HeatmapLayer({
+                    data: new google.maps.MVCArray(part)
+                });
+                vocsHeatmap = new google.maps.visualization.HeatmapLayer({
+                    data: new google.maps.MVCArray(vocs)
+                });
             }
 
-            function changeLayer(sensor) {
-              var temp = getData(sensor)
-              var pointArray = new google.maps.MVCArray(temp);
-
-              heatmap = new google.maps.visualization.HeatmapLayer({
-                data: pointArray
-              });
-              alert(sensor + "changed")
-              heatmap.setMap(map);  
-              changeGradient();          
+            function toggleTempMap() {
+	            tempHeatmap.setMap(map);
+	            humiHeatmap.setMap(null);
+	            partHeatmap.setMap(null);
+	            vocsHeatmap.setMap(null);
+            }
+            function toggleHumiMap() {
+	            tempHeatmap.setMap(null);
+	            humiHeatmap.setMap(map);
+	            partHeatmap.setMap(null);
+	            vocsHeatmap.setMap(null);
+            }
+            function togglePartMap() {
+	            tempHeatmap.setMap(null);
+	            humiHeatmap.setMap(null);
+	            partHeatmap.setMap(map);
+	            vocsHeatmap.setMap(null);
+            }
+            function toggleVocsMap() {
+	            tempHeatmap.setMap(null);
+	            humiHeatmap.setMap(null);
+	            partHeatmap.setMap(null);
+	            vocsHeatmap.setMap(map);
             }
 
-            function toggleHeatmap() {
-              heatmap.setMap(heatmap.getMap() ? null : map);
-            }
-
-            function changeGradient() {
-              var gradient = [
-                'rgba(0, 255, 255, 0)',
-                'rgba(0, 255, 255, 1)',
-                'rgba(0, 191, 255, 1)',
-                'rgba(0, 127, 255, 1)',
-                'rgba(0, 63, 255, 1)',
-                'rgba(0, 0, 255, 1)',
-                'rgba(0, 0, 223, 1)',
-                'rgba(0, 0, 191, 1)',
-                'rgba(0, 0, 159, 1)',
-                'rgba(0, 0, 127, 1)',
-                'rgba(63, 0, 91, 1)',
-                'rgba(127, 0, 63, 1)',
-                'rgba(191, 0, 31, 1)',
-                'rgba(255, 0, 0, 1)'
-              ]
-              heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
-            }
-
-            function changeRadius() {
-               var gradient2 = [
-                'rgba(0, 128, 128, 0)',
-                'rgba(0, 255, 255, 1)',
-                'rgba(0, 191, 255, 1)',
-                'rgba(0, 127, 255, 1)',
-                'rgba(0, 63, 255, 1)',
-                'rgba(0, 0, 255, 1)'
-              ]
-              heatmap.set('gradient', heatmap.get('gradient') ? null: gradient2)
-              heatmap.set('radius', heatmap.get('radius') ? null : 20);
-            }
-
-            function changeVolatile() {
-                //heatmap.set('gradient', heatmap.get('gradient') ? null: gradient3)
-                heatmap.set('radius', heatmap.get('radius') ? null : 15)
-                heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
-            }
-
-            function changeOpacity(weight) {
-              heatmap.set('opacity', heatmap.get('opacity') ? null : weight*.1);
-            }
-
-            google.maps.event.addDomListener(window, 'load', initialize('temperature'));
+            google.maps.event.addDomListener(window, 'load', fetchData);
 
         </script>
     {% endblock %}
-    <div id="panel">
-      <button onclick="changeLayer('temperature')">Temperature</button>
-      <button onclick="changeLayer('humidity')">Humidity</button>
-      <button onclick="changeLayer('gas')">Volatile Organic</button>
-      <button onclick="changeLayer('particulate')">Particle 2.5</button>
-    </div>
-    <div id="map-canvas"></div>
   </body>
 </html>
 {% endblock %}
