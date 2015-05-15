@@ -1,4 +1,4 @@
-package com.htc.sample.ble.hrm;
+package com.prevent;
 
 import java.util.Locale;
 
@@ -37,10 +37,10 @@ import android.widget.Toast;
 
 import com.htc.android.bluetooth.le.gatt.BleConstants;
 
-public class HtcBleDemo extends FragmentActivity implements
+public class HtcBle extends FragmentActivity implements
 		ActionBar.OnNavigationListener, OnInitListener {
 
-	private String TAG = "HtcBleDemo";
+	private String TAG = "HtcBle";
 	private Button mResetButton;
 	private Button mBodySensorLocButton;
 	private boolean appRegistered = false;
@@ -137,7 +137,7 @@ public class HtcBleDemo extends FragmentActivity implements
 				toast.show();
 			} else {
 				Log.i(TAG, "Registering HRM client");
-	    		mHeartRateMonitor = new BluetoothHrmClient(HtcBleDemo.this);
+	    		mHeartRateMonitor = new BluetoothHrmClient(HtcBle.this);
 			}
 		} else {
 			Toast toast = Toast.makeText(this,"NOTE: Bluetooth not supported!", Toast.LENGTH_LONG);
@@ -154,7 +154,7 @@ public class HtcBleDemo extends FragmentActivity implements
 			    		==BluetoothAdapter.STATE_CONNECTED) {
 			    	if(mHeartRateMonitor!=null) {
 						Log.i(TAG, "Registering HRM client");
-			    		mHeartRateMonitor = new BluetoothHrmClient(HtcBleDemo.this);
+			    		mHeartRateMonitor = new BluetoothHrmClient(HtcBle.this);
 			    	}
 			    }
 		    } else if (intent.getAction().equals(BluetoothHrmClient.HRM_REGISTERED)) {
@@ -321,18 +321,18 @@ public class HtcBleDemo extends FragmentActivity implements
 									1);
 					Log.i(TAG,"writeHeartRateControlPointCharacteristic call returned "+result);
 				} else {
-					Toast.makeText(HtcBleDemo.this, "not connected yet", Toast.LENGTH_LONG).show();
+					Toast.makeText(HtcBle.this, "not connected yet", Toast.LENGTH_LONG).show();
 				}
 			} else if (arg0.getId() == R.id.button3) {
 				if (mIsConnected) {
 					result = mHeartRateMonitor.readBodySensorLocationCharacteristic(mDevice);
 					Log.i(TAG,"readBodySensorLocationCharacteristic call returned "+result);
 				} else {
-					Toast.makeText(HtcBleDemo.this, "not connected yet", Toast.LENGTH_LONG).show();
+					Toast.makeText(HtcBle.this, "not connected yet", Toast.LENGTH_LONG).show();
 				}
 			}
 			if (result == BleConstants.SERVICE_UNAVAILABLE) {
-				Toast.makeText(HtcBleDemo.this, "service unavailable", Toast.LENGTH_LONG).show();
+				Toast.makeText(HtcBle.this, "service unavailable", Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -396,7 +396,7 @@ public class HtcBleDemo extends FragmentActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
-			Intent newIntent = new Intent(HtcBleDemo.this, DeviceListActivity.class);
+			Intent newIntent = new Intent(HtcBle.this, DeviceListActivity.class);
 			newIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 			startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
 			return (true);

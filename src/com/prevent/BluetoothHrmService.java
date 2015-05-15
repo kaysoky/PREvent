@@ -1,4 +1,4 @@
-package com.htc.sample.ble.hrm;
+package com.prevent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
