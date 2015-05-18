@@ -3,6 +3,9 @@
       package="com.prevent"
       android:versionCode="1"
       android:versionName="1.0">
+      
+    <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="18" />
+        
     <!-- Permission to use Bluetooth Low Energy (& scanning + discovery of devices) -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
