@@ -23,6 +23,9 @@
 // Toggle for debug serial output
 #define DEBUG
 
+// Toggle for mocked sensor inputs
+#define MOCK
+
 // BLE state/link status tracker
 uint8_t ble_state = BLE_STATE_STANDBY;
 uint8_t ble_encrypted = 0;  // 0 = not encrypted, otherwise = encrypted
@@ -61,13 +64,15 @@ void setup() {
     delay(100); // Waits to make sure everything is powered up before sending or receiving data
     I2c.timeOut(500); // Sets a timeout to ensure no locking up of sketch if I2C communication fails
 
-    // Enable VOC sensor
-    pinMode(VOC_MEASURE_ENABLE_PIN, OUTPUT);
-    digitalWrite(VOC_MEASURE_ENABLE_PIN, LOW);
+    #ifndef MOCK
+        // Enable VOC sensor
+        pinMode(VOC_MEASURE_ENABLE_PIN, OUTPUT);
+        digitalWrite(VOC_MEASURE_ENABLE_PIN, LOW);
 
-    // Enable PM sensor
-    pinMode(PM_LED_PIN, OUTPUT);
-    digitalWrite(PM_LED_PIN, HIGH);
+        // Enable PM sensor
+        pinMode(PM_LED_PIN, OUTPUT);
+        digitalWrite(PM_LED_PIN, HIGH);
+    #endif
 
     // Enable button-based wakeup
     pinMode(MEASURE_WAKEUP_PIN, INPUT_PULLUP);
@@ -92,22 +97,29 @@ void loop() {
         #ifdef DEBUG
             Serial.print("Entering sleep...");
         #endif
-        
+
         delay(100);
         enterSleep();
-        
+
         #ifdef DEBUG
             Serial.println("Woke up!");
         #endif
     }
-    
+
     // Keep polling for new data from BLE
     ble112.checkActivity();
 
-    // Acquire data from sensors
-    printTempHumd();
-    printVOC();
-    printPM();
+    #ifdef MOCK
+        pm   += 1;
+        voc  += 1;
+        temp += 1;
+        humd += 1;
+    #else
+        // Acquire data from sensors
+        printTempHumd();
+        printVOC();
+        printPM();
+    #endif
 
     #ifdef DEBUG
         Serial.println(temp, BIN);
@@ -116,10 +128,10 @@ void loop() {
         Serial.println(pm, BIN);
         Serial.println();
     #endif
-    
+
     formatBluetoothData();
 
-    uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA, 
+    uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA,
         0, 6, (const uint8*) bluetooth_data);
 
     delay(500);
@@ -196,10 +208,10 @@ void printVOC()  {
 void getPM() {
     digitalWrite(PM_LED_PIN, LOW);
     delayMicroseconds(280);
-    
+
     pm = analogRead(3);
     delayMicroseconds(40);
-    
+
     digitalWrite(PM_LED_PIN, HIGH);
     delayMicroseconds(9680);
 }
@@ -207,7 +219,7 @@ void getPM() {
 void getVOC()  {
     digitalWrite(VOC_MEASURE_ENABLE_PIN, HIGH);
     delay(50);
-    
+
     voc = analogRead(1);
     digitalWrite(VOC_MEASURE_ENABLE_PIN, LOW);
 }
@@ -234,10 +246,10 @@ int getTempHumd()  {
 void resetWatchdogTimer()  {
     // clear various "reset" flags
     MCUSR = 0;
-    
+
     // allow changes, disable reset, clear existing interrupt
     WDTCSR = bit (WDCE) | bit (WDE) | bit (WDIF);
-    
+
     // set interrupt mode and an interval (WDE must be changed from 1 to 0 here)
     WDTCSR = bit (WDIE) | bit (WDP3) | bit (WDP0); // set WDIE, and 8 seconds delay
     wdt_reset();
@@ -352,13 +364,15 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
 
     // USE THE FOLLOWING TO HANDLE YOUR OWN CUSTOM ADVERTISEMENT PACKETS
     // =================================================================
+#define BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE 0x02
+#define BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED 0x04
 #if 1
     // build custom advertisement data
     // default BLE stack value: 0201061107e4ba94c3c9b7cdb09b487a438ae55a19
     uint8 adv_data[] = {
         0x02, // field length
         BGLIB_GAP_AD_TYPE_FLAGS, // field type (0x01)
-        BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE | BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED, // data (0x02 | 0x04 = 0x06)
+        BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE | BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED, // 0x06
         0x11, // field length
         BGLIB_GAP_AD_TYPE_SERVICES_128BIT_ALL, // field type (0x07)
         0xe4, 0xba, 0x94, 0xc3, 0xc9, 0xb7, 0xcd, 0xb0, 0x9b, 0x48, 0x7a, 0x43, 0x8a, 0xe5, 0x5a, 0x19
