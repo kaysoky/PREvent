@@ -5,11 +5,17 @@
 #include <SoftwareSerial.h>
 #include "BGLib.h"
 
+// Pin Assignments:
+#define PIN_VOC_MEASURE             1   //Analog
+#define PIN_PM_MEASURE              3   //Analog
+#define PIN_VOC_ENABLE              7   //Digital
+#define PIN_WAKEUP                  8   //Digital
+#define PIN_R_LED                   9   //Digital
+#define PIN_G_LED                   10  //Digital
+#define PIN_B_LED                   11  //Digital
+#define PIN_PM_LED                  12  //Digital
+
 #define TEMP_HUMD_ADDRESS           0x28
-#define I2C_POLLING_DELAY           1
-#define VOC_MEASURE_ENABLE_PIN      7
-#define MEASURE_WAKEUP_PIN          8
-#define PM_LED_PIN                  9
 
 #define BLE_STATE_STANDBY           0
 #define BLE_STATE_SCANNING          1
@@ -20,11 +26,9 @@
 #define GATT_HANDLE_C_RX_DATA       17  // 0x11, supports "write" operation
 #define GATT_HANDLE_C_TX_DATA       20  // 0x14, supports "read" and "indicate" operations
 
-// Toggle for debug serial output
-// #define DEBUG
-
-// Toggle for mocked sensor inputs
-// #define MOCK
+// Toggle for debug serial output and sensor inputs
+#define DEBUG
+#define MOCK
 
 // BLE state/link status tracker
 uint8_t ble_state = BLE_STATE_STANDBY;
@@ -60,23 +64,23 @@ ISR(WDT_vect)  {
 
 void setup() {
     resetWatchdogTimer ();  // do this first in case WDT fires
-    I2c.begin(); // Opens & joins the irc bus as master
-    delay(100); // Waits to make sure everything is powered up before sending or receiving data
-    I2c.timeOut(500); // Sets a timeout to ensure no locking up of sketch if I2C communication fails
-
-    #ifndef MOCK
-        // Enable VOC sensor
-        pinMode(VOC_MEASURE_ENABLE_PIN, OUTPUT);
-        digitalWrite(VOC_MEASURE_ENABLE_PIN, LOW);
-
-        // Enable PM sensor
-        pinMode(PM_LED_PIN, OUTPUT);
-        digitalWrite(PM_LED_PIN, HIGH);
+    I2c.begin();            // Opens & joins the irc bus as master
+    delay(100);             // Waits to make sure everything is powered up before sending or receiving data
+    I2c.timeOut(500);       // Sets a timeout to ensure no locking up of sketch if I2C communication fails
+    
+      #ifndef MOCK
+      // Enable VOC sensor (active high)
+      pinMode(PIN_VOC_ENABLE, OUTPUT);
+      digitalWrite(PIN_VOC_ENABLE, LOW);
+  
+      // Enable PM sensor (active low)
+      pinMode(PIN_PM_LED, OUTPUT);
+      digitalWrite(PIN_PM_LED, HIGH);
     #endif
 
     // Enable button-based wakeup
-    pinMode(MEASURE_WAKEUP_PIN, INPUT_PULLUP);
-    pciSetup(8);
+    pinMode(PIN_WAKEUP, INPUT_PULLUP);
+    pciSetup(PIN_WAKEUP);
 
     #ifdef DEBUG
         Serial.begin(38400);
@@ -93,32 +97,32 @@ void pciSetup(byte pin)  {
 }
 
 void loop() {
-    if (digitalRead(MEASURE_WAKEUP_PIN)) {
+    if (digitalRead(PIN_WAKEUP)) {
         #ifdef DEBUG
             Serial.print("Entering sleep...");
         #endif
-
+        
         delay(100);
         enterSleep();
-
+        
         #ifdef DEBUG
             Serial.println("Woke up!");
         #endif
     }
-
+    
     // Keep polling for new data from BLE
     ble112.checkActivity();
-
+   
     #ifdef MOCK
-        pm   += 1;
-        voc  += 1;
-        temp += 1;
-        humd += 1;
-    #else
-        // Acquire data from sensors
-        printTempHumd();
-        printVOC();
-        printPM();
+      pm   += 1;
+      voc  += 1;
+      temp += 1;
+      humd += 1;
+    #else 
+      // Acquire data from sensors
+      printTempHumd();
+      printVOC();
+      printPM();
     #endif
 
     #ifdef DEBUG
@@ -128,7 +132,7 @@ void loop() {
         Serial.println(pm, BIN);
         Serial.println();
     #endif
-
+    
     formatBluetoothData();
 
     uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA,
@@ -206,35 +210,33 @@ void printVOC()  {
 }
 
 void getPM() {
-    digitalWrite(PM_LED_PIN, LOW);
+    digitalWrite(PIN_PM_LED, LOW);
     delayMicroseconds(280);
-
-    pm = analogRead(3);
+    
+    pm = analogRead(PIN_PM_MEASURE);
     delayMicroseconds(40);
-
-    digitalWrite(PM_LED_PIN, HIGH);
+    
+    digitalWrite(PIN_PM_LED, HIGH);
     delayMicroseconds(9680);
 }
 
 void getVOC()  {
-    digitalWrite(VOC_MEASURE_ENABLE_PIN, HIGH);
+    digitalWrite(PIN_VOC_ENABLE, HIGH);
     delay(50);
-
-    voc = analogRead(1);
-    digitalWrite(VOC_MEASURE_ENABLE_PIN, LOW);
+    
+    voc = analogRead(PIN_VOC_MEASURE);
+    digitalWrite(PIN_VOC_ENABLE, LOW);
 }
 
 int getTempHumd()  {
     byte data[4];
-    uint8_t nackack = 100; // Setup variable to hold ACK/NACK resopnses
 
     // Measurement request
-    nackack = I2c.write(TEMP_HUMD_ADDRESS, 0x01);
-    delay(55); // Acquisition Time
-    nackack = 100; // Setup variable to hold ACK/NACK resopnses
+    I2c.write(TEMP_HUMD_ADDRESS, 0x01);
+    delay(55);     // Acquisition Time
 
     // Data fetch
-    nackack = I2c.read(TEMP_HUMD_ADDRESS, 4);
+    I2c.read(TEMP_HUMD_ADDRESS, 4);
     for (int i = 3; i >= 0; i--)  {
         data[i] = I2c.receive();
     }
@@ -246,10 +248,10 @@ int getTempHumd()  {
 void resetWatchdogTimer()  {
     // clear various "reset" flags
     MCUSR = 0;
-
+    
     // allow changes, disable reset, clear existing interrupt
     WDTCSR = bit (WDCE) | bit (WDE) | bit (WDIF);
-
+    
     // set interrupt mode and an interval (WDE must be changed from 1 to 0 here)
     WDTCSR = bit (WDIE) | bit (WDP3) | bit (WDP0); // set WDIE, and 8 seconds delay
     wdt_reset();
@@ -312,7 +314,9 @@ void onIdle() {
 }
 
 // called when the parser does not read the expected response in the specified time limit
-void onTimeout() {}
+void onTimeout() {
+    // reset module (might be a bit drastic for a timeout condition though)
+}
 
 // called immediately before beginning UART TX of a command
 void onBeforeTXCommand() {
@@ -323,7 +327,7 @@ void onBeforeTXCommand() {
         last = ble112.getLastEvent();
         if (last[0] == 0x07 && last[1] == 0x00) break;
     }
-
+    
     // give a bit of a gap between parsing the wake-up event and allowing the command to go out
     delayMicroseconds(1000);
 }
@@ -368,14 +372,15 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
 
     // USE THE FOLLOWING TO HANDLE YOUR OWN CUSTOM ADVERTISEMENT PACKETS
     // =================================================================
-#define BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE 0x02
-#define BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED 0x04
+    
+    #define BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE 0x02
+    #define BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED  0x04  
     // build custom advertisement data
     // default BLE stack value: 0201061107e4ba94c3c9b7cdb09b487a438ae55a19
     uint8 adv_data[] = {
         0x02, // field length
         BGLIB_GAP_AD_TYPE_FLAGS, // field type (0x01)
-        BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE | BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED, // 0x06
+        BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE | BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED, // data (0x02 | 0x04 = 0x06)
         0x11, // field length
         BGLIB_GAP_AD_TYPE_SERVICES_128BIT_ALL, // field type (0x07)
         0xe4, 0xba, 0x94, 0xc3, 0xc9, 0xb7, 0xcd, 0xb0, 0x9b, 0x48, 0x7a, 0x43, 0x8a, 0xe5, 0x5a, 0x19
@@ -413,6 +418,7 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
     // put module into discoverable/connectable mode (with user-defined advertisement data)
     ble112.ble_cmd_gap_set_mode(BGLIB_GAP_USER_DATA, BGLIB_GAP_UNDIRECTED_CONNECTABLE);
     while (ble112.checkActivity(1000));
+    
     // set state to ADVERTISING
     ble_state = BLE_STATE_ADVERTISING;
 }
