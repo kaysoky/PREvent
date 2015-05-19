@@ -44,8 +44,14 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String EXTRA_TEMP_DATA =
+            "com.example.bluetooth.le.EXTRA_TEMP_DATA";
+    public final static String EXTRA_HUMI_DATA =
+            "com.example.bluetooth.le.EXTRA_HUMI_DATA";
+    public final static String EXTRA_VOC_DATA =
+            "com.example.bluetooth.le.EXTRA_VOC_DATA";
+    public final static String EXTRA_PM_DATA =
+            "com.example.bluetooth.le.EXTRA_PM_DATA";
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -104,16 +110,41 @@ public class BluetoothLeService extends Service {
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
-        // Write the data formatted in HEX
         final byte[] data = characteristic.getValue();
-        if (data != null && data.length > 0) {
-            final StringBuilder stringBuilder = new StringBuilder(data.length);
-            for(byte byteChar : data)
-                stringBuilder.append(String.format("%02X ", byteChar));
-            intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-        }
         
-        sendBroadcast(intent);
+        // Check for the expected payload
+        if (data == null || data.length != 6) {
+            Log.e(TAG, "Unexpected data length: " + data.length);
+            
+            // Write the data formatted in HEX
+            if (data != null && data.length > 0) {
+                final StringBuilder stringBuilder = new StringBuilder(data.length);
+                for (byte byteChar : data)
+                    stringBuilder.append(String.format("%02X ", byteChar));
+                Log.e(TAG, "Unexpected data: " + stringBuilder.toString());
+            }
+        } else {
+            // Convert bytes to ints
+            int[] extras = new int[]{ data[0], data[1], data[2], data[3], data[4], data[5] };
+            
+            // Parse data into four integers
+            //   14-bits Temperature
+            //   14-bits Humidity
+            //   10-bits VOC
+            //   10-bits PM
+            int temperature = extras[0] << 8 | (extras[1] & 0xFC) >> 2;
+            int humidity = (extras[1] & 0x3) << 12 | extras[2] << 4 | (extras[3] & 0xF0) >> 4;
+            int voc = (extras[3] & 0xF) << 6 | (extras[4] & 0xFC) >> 2;
+            int particulates = (extras[4] & 0x3) << 8 | extras[5];
+            
+            // Add parsed data into intent
+            intent.putExtra(EXTRA_TEMP_DATA, temperature);
+            intent.putExtra(EXTRA_HUMI_DATA, temperature);
+            intent.putExtra(EXTRA_VOC_DATA, temperature);
+            intent.putExtra(EXTRA_PM_DATA, temperature);
+            
+            sendBroadcast(intent);
+        }
     }
 
     public class LocalBinder extends Binder {

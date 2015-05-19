@@ -84,7 +84,7 @@ public class DeviceControlActivity extends Activity {
                 invalidateOptionsMenu();
                 clearUI();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                displayData(intent);
             }
         }
     };
@@ -208,10 +208,12 @@ public class DeviceControlActivity extends Activity {
         });
     }
 
-    private void displayData(String data) {
-        if (data != null) {
-            mDataField.setText(data);
-        }
+    private void displayData(Intent intent) {
+        mDataField.setText(
+            "T: " + intent.getIntExtra(BluetoothLeService.EXTRA_TEMP_DATA, -1) 
+         + ",H: " + intent.getIntExtra(BluetoothLeService.EXTRA_HUMI_DATA, -1)
+         + ",V: " + intent.getIntExtra(BluetoothLeService.EXTRA_VOC_DATA, -1)
+         + ",P: " + intent.getIntExtra(BluetoothLeService.EXTRA_PM_DATA, -1));
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

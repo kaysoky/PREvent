@@ -14,5 +14,5 @@ ant debug
 
 ## To install: 
 ```
-adb install bin/PREventCompanion-debug.apk
+adb install -r bin/PREventCompanion-debug.apk
 ```
