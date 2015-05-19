@@ -21,10 +21,10 @@
 #define GATT_HANDLE_C_TX_DATA       20  // 0x14, supports "read" and "indicate" operations
 
 // Toggle for debug serial output
-#define DEBUG
+// #define DEBUG
 
 // Toggle for mocked sensor inputs
-#define MOCK
+// #define MOCK
 
 // BLE state/link status tracker
 uint8_t ble_state = BLE_STATE_STANDBY;
@@ -312,13 +312,17 @@ void onIdle() {
 }
 
 // called when the parser does not read the expected response in the specified time limit
-void onTimeout() {
-    // reset module (might be a bit drastic for a timeout condition though)
-}
+void onTimeout() {}
 
 // called immediately before beginning UART TX of a command
 void onBeforeTXCommand() {
-    // wake module up (assuming here that digital pin 5 is connected to the BLE wake-up pin)
+    // wait for "hardware_io_port_status" event to come through, and parse it (and otherwise ignore it)
+    uint8_t *last;
+    while (1) {
+        ble112.checkActivity();
+        last = ble112.getLastEvent();
+        if (last[0] == 0x07 && last[1] == 0x00) break;
+    }
 
     // give a bit of a gap between parsing the wake-up event and allowing the command to go out
     delayMicroseconds(1000);
@@ -366,7 +370,6 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
     // =================================================================
 #define BGLIB_GAP_AD_FLAG_GENERAL_DISCOVERABLE 0x02
 #define BGLIB_GAP_AD_FLAG_BREDR_NOT_SUPPORTED 0x04
-#if 1
     // build custom advertisement data
     // default BLE stack value: 0201061107e4ba94c3c9b7cdb09b487a438ae55a19
     uint8 adv_data[] = {
@@ -410,7 +413,6 @@ void my_ble_evt_system_boot(const ble_msg_system_boot_evt_t *msg) {
     // put module into discoverable/connectable mode (with user-defined advertisement data)
     ble112.ble_cmd_gap_set_mode(BGLIB_GAP_USER_DATA, BGLIB_GAP_UNDIRECTED_CONNECTABLE);
     while (ble112.checkActivity(1000));
-#endif
     // set state to ADVERTISING
     ble_state = BLE_STATE_ADVERTISING;
 }
