@@ -14,6 +14,7 @@
 #define PIN_G_LED                   10  //Digital
 #define PIN_B_LED                   11  //Digital
 #define PIN_PM_LED                  12  //Digital
+#define LED_PIN         13  // Arduino Uno LED pin
 
 #define TEMP_HUMD_ADDRESS           0x28
 
@@ -63,6 +64,10 @@ ISR(WDT_vect)  {
 }
 
 void setup() {
+    // initialize status LED
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
+    
     resetWatchdogTimer ();  // do this first in case WDT fires
     I2c.begin();            // Opens & joins the irc bus as master
     delay(100);             // Waits to make sure everything is powered up before sending or receiving data
@@ -98,16 +103,8 @@ void pciSetup(byte pin)  {
 
 void loop() {
     if (digitalRead(PIN_WAKEUP)) {
-        #ifdef DEBUG
-            Serial.print("Entering sleep...");
-        #endif
-        
         delay(100);
-        enterSleep();
-        
-        #ifdef DEBUG
-            Serial.println("Woke up!");
-        #endif
+        // enterSleep();
     }
     
     // Keep polling for new data from BLE
@@ -124,19 +121,28 @@ void loop() {
       printVOC();
       printPM();
     #endif
-
-    #ifdef DEBUG
-        Serial.println(temp, BIN);
-        Serial.println(humd, BIN);
-        Serial.println(voc, BIN);
-        Serial.println(pm, BIN);
-        Serial.println();
-    #endif
     
     formatBluetoothData();
 
-    uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA,
-        0, 6, (const uint8*) bluetooth_data);
+    // blink Arduino LED based on state:
+    //  - solid = STANDBY
+    //  - 1 pulse per second = ADVERTISING
+    //  - 2 pulses per second = CONNECTED_SLAVE
+    //  - 3 pulses per second = CONNECTED_SLAVE with encryption
+    uint16_t slice = millis() % 1000;
+    if (ble_state == BLE_STATE_STANDBY) {
+        digitalWrite(LED_PIN, HIGH);
+    } else if (ble_state == BLE_STATE_ADVERTISING) {
+        digitalWrite(LED_PIN, slice < 100);
+    } else if (ble_state == BLE_STATE_CONNECTED_SLAVE) {
+        if (!ble_encrypted) {
+            digitalWrite(LED_PIN, slice < 100 || (slice > 200 && slice < 300));
+        } else {
+            digitalWrite(LED_PIN, slice < 100 || (slice > 200 && slice < 300) || (slice > 400 && slice < 500));
+        }
+        uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA,
+            0, 6, (const uint8*) bluetooth_data);
+    }
 
     delay(500);
 }
