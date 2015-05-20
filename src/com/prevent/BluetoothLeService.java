@@ -124,8 +124,10 @@ public class BluetoothLeService extends Service {
                 Log.e(TAG, "Unexpected data: " + stringBuilder.toString());
             }
         } else {
-            // Convert bytes to ints
-            int[] extras = new int[]{ data[0], data[1], data[2], data[3], data[4], data[5] };
+            // Convert unsigned bytes to int
+            // Note: the masking is necessary
+            int[] extras = new int[]{ data[0] & 0xFF, data[1] & 0xFF, 
+                data[2] & 0xFF, data[3] & 0xFF, data[4] & 0xFF, data[5] & 0xFF };
             
             // Parse data into four integers
             //   14-bits Temperature
@@ -139,9 +141,9 @@ public class BluetoothLeService extends Service {
             
             // Add parsed data into intent
             intent.putExtra(EXTRA_TEMP_DATA, temperature);
-            intent.putExtra(EXTRA_HUMI_DATA, temperature);
-            intent.putExtra(EXTRA_VOC_DATA, temperature);
-            intent.putExtra(EXTRA_PM_DATA, temperature);
+            intent.putExtra(EXTRA_HUMI_DATA, humidity);
+            intent.putExtra(EXTRA_VOC_DATA, voc);
+            intent.putExtra(EXTRA_PM_DATA, particulates);
             
             sendBroadcast(intent);
         }
