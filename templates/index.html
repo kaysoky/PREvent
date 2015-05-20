@@ -52,16 +52,46 @@
                           <h2>Average Volatile Organic:</h2> <h2 id="vocsMean"></h2>
                         </div>
                     </div>
+                    <style>
+					#chart_container {
+					        position: relative;
+					        font-family: Arial, Helvetica, sans-serif;
+					}
+					#chart {
+					        position: relative;
+					        left: 40px;
+					}
+					.rickshaw_graph .y_ticks {
+					        left: 0;
+					}
+					#y_axis {
+					        position: absolute;
+					        top: 0;
+					        bottom: 0;
+					        width: 40px;
+					}
+					</style>
+					<div id="chart_container">
+					        <div id="y_axis"></div>
+					        <div id="chart"></div>
+					</div>
+					<canvas id="tempHumiChart" width="1000" height="500"></canvas>
+					<canvas id="partVocsChart" width="1000" height="500"></canvas>
+					<canvas id="tempHumiHour" width="1000" height="500"></canvas>
                 </div>
             <div>
         <div>
     </div><!-- ./wrapper -->
 
     {% block script %}
+
         <script src="{% static 'rest_framework/js/jquery-1.8.1-min.js' %}"></script>
         <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
         <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
         <script src="{% static 'rest_framework/js/default.js' %}"></script>
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="{% static 'Chart.min.js' %}"></script>
+        </script>
         <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
         </script>
@@ -71,10 +101,28 @@
             var humi = [];
             var part = [];
             var vocs = [];
+            var tempChart = [];
+            var humiChart = [];
+            var partChart = [];
+            var vocsChart = [];
+            var dateChart = [];
+            var tempByHour = {};
+            var humiByHour = {};
             function fetchData() {
             	$.get('/data/').done(function(data) {
 	                for (var index in data) {
 	                    var coord = new google.maps.LatLng(data[index].ycoord, data[index].xcoord);
+	                    var date = new Date(data[index].timestamp);
+	                    var hour = date.getHours();
+	                    tempByHour[hour] = tempByHour[hour]||[];
+	                    tempByHour[hour].push(data[index].temperature);
+	                    humiByHour[hour] = humiByHour[hour]||[];
+	                    humiByHour[hour].push(data[index].humidity);
+	                    dateChart.push(date);
+	                    tempChart.push(Math.floor(data[index].temperature * 100));
+	                    humiChart.push(Math.floor(data[index].humidity * 100));
+	                    partChart.push(Math.floor(data[index].particulate * 100));
+	                    vocsChart.push(Math.floor(data[index].gas * 100));
 	                    temp.push({ location: coord, weight: data[index].temperature });
 	                    humi.push({ location: coord, weight: data[index].humidity });
 	                    part.push({ location: coord, weight: data[index].particulate });
@@ -82,8 +130,21 @@
 	                }
 	                averages();
 	                initialize();
+	                var hourTicks = Object.keys(tempByHour);
+	                tempHour = group(tempByHour);
+	                humiHour = group(humiByHour);
+	                data1 = makeGraphs(tempChart, humiChart, dateChart);
+	                data2 = makeGraphs(partChart, vocsChart, dateChart);
+	                data3 = makeGraphs(tempHour, humiHour, hourTicks);
+	                var ctx = document.getElementById("tempHumiChart").getContext("2d");
+	                var etx = document.getElementById('partVocsChart').getContext("2d");
+	                var stx = document.getElementById('tempHumiHour').getContext("2d");
+	                var tempHumiHour = new Chart(stx).Line(data3)
+	                var tempHumiChart = new Chart(etx).Line(data2);
+					var partVocsChart = new Chart(ctx).Line(data1);	
 	            });
 	        }
+
 			function averages()	{
 				var tempMean = 0;
 	        	var humiMean = 0;
@@ -100,6 +161,24 @@
 				document.getElementById("partMean").innerHTML = partMean/temp.length;
 				document.getElementById("vocsMean").innerHTML = vocsMean/temp.length;
 			};	        
+
+			function group(dict) {
+				var values = [];
+				for(var key in dict) {
+					values.push(ave(dict[key]));
+				}
+				return values
+			}
+
+			function ave(array) {
+				var sum = 0;
+				for(var i = 0; i < array.length; i++) {
+					sum = sum + array[i];
+				}
+				sum = sum/array.length;
+				return sum
+			}
+
 
             var map;
             var tempHeatmap;
@@ -157,7 +236,37 @@
 	            vocsHeatmap.setMap(map);
             }
 
-            google.maps.event.addDomListener(window, 'load', fetchData);
+			google.maps.event.addDomListener(window, 'load', fetchData);
+
+			function makeGraphs(data1, data2, dateChart) {
+				var data = {
+	    			labels: dateChart,
+				    datasets: [
+				        {
+				            label: "Temperature",
+				            fillColor: "rgba(220,220,220,0.2)",
+				            strokeColor: "rgba(220,220,220,1)",
+				            pointColor: "rgba(220,220,220,1)",
+				            pointStrokeColor: "#fff",
+				            pointHighlightFill: "#fff",
+				            pointHighlightStroke: "rgba(220,220,220,1)",
+				            data: data1
+				        },
+				        {
+				        	label: "",
+				            fillColor: "rgba(151,187,205,0.2)",
+				            strokeColor: "rgba(151,187,205,1)",
+				            pointColor: "rgba(151,187,205,1)",
+				            pointStrokeColor: "#fff",
+				            pointHighlightFill: "#fff",
+				            pointHighlightStroke: "rgba(151,187,205,1)",
+				            data: data2
+				        }
+
+				    ]
+				}	
+				return data		    
+			};
 
         </script>
     {% endblock %}
