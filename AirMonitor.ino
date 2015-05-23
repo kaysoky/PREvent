@@ -28,8 +28,8 @@
 #define GATT_HANDLE_C_TX_DATA       20  // 0x14, supports "read" and "indicate" operations
 
 // Toggle for debug serial output and sensor inputs
-#define DEBUG
-#define MOCK
+// #define DEBUG
+// #define MOCK
 
 // BLE state/link status tracker
 uint8_t ble_state = BLE_STATE_STANDBY;
@@ -73,7 +73,7 @@ void setup() {
     delay(100);             // Waits to make sure everything is powered up before sending or receiving data
     I2c.timeOut(500);       // Sets a timeout to ensure no locking up of sketch if I2C communication fails
     
-      #ifndef MOCK
+    #ifndef MOCK
       // Enable VOC sensor (active high)
       pinMode(PIN_VOC_ENABLE, OUTPUT);
       digitalWrite(PIN_VOC_ENABLE, LOW);
@@ -104,7 +104,7 @@ void pciSetup(byte pin)  {
 void loop() {
     if (digitalRead(PIN_WAKEUP)) {
         delay(100);
-        // enterSleep();
+        enterSleep();
     }
     
     // Keep polling for new data from BLE
@@ -124,27 +124,15 @@ void loop() {
     
     formatBluetoothData();
 
-    // blink Arduino LED based on state:
-    //  - solid = STANDBY
-    //  - 1 pulse per second = ADVERTISING
-    //  - 2 pulses per second = CONNECTED_SLAVE
-    //  - 3 pulses per second = CONNECTED_SLAVE with encryption
-    uint16_t slice = millis() % 1000;
-    if (ble_state == BLE_STATE_STANDBY) {
-        digitalWrite(LED_PIN, HIGH);
-    } else if (ble_state == BLE_STATE_ADVERTISING) {
-        digitalWrite(LED_PIN, slice < 100);
-    } else if (ble_state == BLE_STATE_CONNECTED_SLAVE) {
-        if (!ble_encrypted) {
-            digitalWrite(LED_PIN, slice < 100 || (slice > 200 && slice < 300));
-        } else {
-            digitalWrite(LED_PIN, slice < 100 || (slice > 200 && slice < 300) || (slice > 400 && slice < 500));
-        }
-        uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA,
-            0, 6, (const uint8*) bluetooth_data);
+    // Stay awake for longer when advertising
+    if (ble_state == BLE_STATE_ADVERTISING) {
+        delay(1000);
     }
+    
+    uint8_t result = ble112.ble_cmd_attributes_write(GATT_HANDLE_C_TX_DATA,
+        0, 6, (const uint8*) bluetooth_data);
 
-    delay(500);
+    delay(1000);
 }
 
 /**
