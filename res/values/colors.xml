@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Universal colors -->
+    <color name="white">#ffffff</color>
+    <color name="gray">#3F3F3F</color>
+    <color name="light_gray">#8E948F</color>
+
+    <!-- Indicator colors: Lv1 OK to Lv10 Danger -->
+    <color name="lv1">#4AFF46</color>
+    <color name="lv2">#87FF46</color>
+    <color name="lv3">#C5FF46</color>
+    <color name="lv4">#FFFE46</color>
+    <color name="lv5">#FFD546</color>
+    <color name="lv6">#FFC046</color>
+    <color name="lv7">#FFA946</color>
+    <color name="lv8">#FF8C46</color>
+    <color name="lv9">#FF7046</color>
+    <color name="lv10">#CF4339</color>
+
+</resources>
