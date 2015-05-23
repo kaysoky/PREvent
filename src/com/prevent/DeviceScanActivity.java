@@ -24,6 +24,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -31,6 +32,8 @@ import java.util.ArrayList;
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
 public class DeviceScanActivity extends ListActivity {
+    private final static String TAG = DeviceScanActivity.class.getSimpleName();
+    
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
@@ -39,6 +42,7 @@ public class DeviceScanActivity extends ListActivity {
     
     // State variables
     private boolean mScanning;
+    private boolean mServiceBound;
     private boolean mConnected;
     private String mDeviceAddress;
 
@@ -46,7 +50,7 @@ public class DeviceScanActivity extends ListActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     
     // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 25000;
     
     // Name of the expected peripheral device
     private static final String PERIPHERAL_NAME = "AirMonitor";
@@ -57,11 +61,9 @@ public class DeviceScanActivity extends ListActivity {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Could not initialize bluetooth service");
                 finish();
             }
-            
-            // Automatically connects to the device upon successful start-up initialization
-            mBluetoothLeService.connect(mDeviceAddress);
         }
 
         @Override
@@ -78,6 +80,7 @@ public class DeviceScanActivity extends ListActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+            Log.d(TAG, "Received broadcast: " + action);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
@@ -112,6 +115,10 @@ public class DeviceScanActivity extends ListActivity {
             finish();
             return;
         }
+        
+        // Bind the background service
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
         
         mDataField = (TextView) findViewById(R.id.data_value);
     }
@@ -189,7 +196,10 @@ public class DeviceScanActivity extends ListActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
+        if (mServiceBound) {
+            unbindService(mServiceConnection);
+        }
+        mServiceBound = false;
         mBluetoothLeService = null;
     }
 
@@ -202,13 +212,15 @@ public class DeviceScanActivity extends ListActivity {
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
+            invalidateOptionsMenu();
         }
         
-        // Bind the background service
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        // Connect to the device
         mDeviceAddress = device.getAddress();
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-        
+        Log.d(TAG, "Connecting to device at: " + mDeviceAddress);
+        mBluetoothLeService.connect(mDeviceAddress);        
+        mServiceBound = true;
+            
         // TODO: Change to another activity, like the main page
         // final Intent intent = new Intent(this, TODO_Activity.class);
         // startActivity(intent);
@@ -291,10 +303,11 @@ public class DeviceScanActivity extends ListActivity {
 
             BluetoothDevice device = mLeDevices.get(i);
             final String deviceName = device.getName();
-            if (deviceName != null && deviceName.length() > 0)
+            if (deviceName != null && deviceName.length() > 0) {
                 viewHolder.deviceName.setText(deviceName);
-            else
+            } else {
                 viewHolder.deviceName.setText(R.string.unknown_device);
+            }
             viewHolder.deviceAddress.setText(device.getAddress());
 
             return view;
@@ -304,16 +317,17 @@ public class DeviceScanActivity extends ListActivity {
     // Device scan callback
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
-
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    
                     if (device.getName().contains(PERIPHERAL_NAME)) {
+                        Log.d(TAG, "Device (" + device.getName() + ") added to view");
                         mLeDeviceListAdapter.addDevice(device);
                         mLeDeviceListAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.w(TAG, "Device (" + device.getName() + ") filtered from view");
                     }
                 }
             });

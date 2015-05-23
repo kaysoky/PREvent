@@ -16,13 +16,14 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
 /**
- * Service for managing connection and data communication 
+ * Service for managing connection and data communication
  * with a GATT server hosted on a Bluetooth LE device
  */
 public class BluetoothLeService extends Service {
@@ -33,10 +34,11 @@ public class BluetoothLeService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    
+
     // Recurring event that polls for new data from the device
-    private static Timer timer = new Timer(); 
-    
+    private static Timer timer = new Timer();
+    private static byte[] previousData = new byte[]{};
+
     // Characteristic to read data from
     private BluetoothGattCharacteristic mCharacteristic;
 
@@ -61,9 +63,13 @@ public class BluetoothLeService extends Service {
             "com.prevent.EXTRA_VOC_DATA";
     public final static String EXTRA_PM_DATA =
             "com.prevent.EXTRA_PM_DATA";
-    
+
     // Characteristic UUID from which to read data
     private static final String DATA_CHARACTERISTIC_UUID = "21819ab0-c937-4188-b0db-b9621e1696cd";
+
+    // Interval at which to poll for data
+    // Should match the sleep/wake cycle of the device
+    private static final int DATA_POLL_INTERVAL = 2500;
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -76,9 +82,9 @@ public class BluetoothLeService extends Service {
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
-                
+
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
+                Log.i(TAG, "Starting service discovery:" +
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -127,11 +133,11 @@ public class BluetoothLeService extends Service {
         final Intent intent = new Intent(action);
 
         final byte[] data = characteristic.getValue();
-        
+
         // Check for the expected payload
         if (data == null || data.length != 6) {
             Log.e(TAG, "Unexpected data length: " + data.length);
-            
+
             // Write the data formatted in HEX
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -139,12 +145,18 @@ public class BluetoothLeService extends Service {
                     stringBuilder.append(String.format("%02X ", byteChar));
                 Log.e(TAG, "Unexpected data: " + stringBuilder.toString());
             }
+        } else if (Arrays.equals(data, previousData)) {
+            // If we've gotton the same data as before, 
+            // then our connection to the GATT server has probably been lost
+            // Note: the Android device takes significantly longer to realize this
+            Log.w(TAG, "Detected stale (cached) data, attempting to reconnect");
+            connect(mBluetoothDeviceAddress);
         } else {
             // Convert unsigned bytes to int
             // Note: the masking is necessary
-            int[] extras = new int[]{ data[0] & 0xFF, data[1] & 0xFF, 
+            int[] extras = new int[]{ data[0] & 0xFF, data[1] & 0xFF,
                 data[2] & 0xFF, data[3] & 0xFF, data[4] & 0xFF, data[5] & 0xFF };
-            
+
             // Parse data into four integers
             //   14-bits Temperature
             //   14-bits Humidity
@@ -154,13 +166,20 @@ public class BluetoothLeService extends Service {
             int humidity = (extras[1] & 0x3) << 12 | extras[2] << 4 | (extras[3] & 0xF0) >> 4;
             int voc = (extras[3] & 0xF) << 6 | (extras[4] & 0xFC) >> 2;
             int particulates = (extras[4] & 0x3) << 8 | extras[5];
-            
+
+            Log.d(TAG, "Got data ("
+                 +  "T: " + temperature
+                 + ",H: " + humidity
+                 + ",V: " + voc
+                 + ",P: " + particulates + ")");
+
             // Add parsed data into intent
             intent.putExtra(EXTRA_TEMP_DATA, temperature);
             intent.putExtra(EXTRA_HUMI_DATA, humidity);
             intent.putExtra(EXTRA_VOC_DATA, voc);
             intent.putExtra(EXTRA_PM_DATA, particulates);
-            
+
+            previousData = data;
             sendBroadcast(intent);
         }
     }
@@ -186,11 +205,11 @@ public class BluetoothLeService extends Service {
     }
 
     private final IBinder mBinder = new LocalBinder();
-    
+
     @Override
     public void onCreate() {
-        // Start polling for data every 8 seconds
-        timer.scheduleAtFixedRate(new PollDeviceTask(), 0, 8000);
+        // Start polling for data every few seconds
+        timer.scheduleAtFixedRate(new PollDeviceTask(), 0, DATA_POLL_INTERVAL);
     }
 
     /**
@@ -219,7 +238,7 @@ public class BluetoothLeService extends Service {
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device
      * @param address The device address of the destination device.
-     * @return Return true if the connection is initiated successfully. 
+     * @return Return true if the connection is initiated successfully.
      *         The connection result is reported asynchronously through the
      *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      *         callback.
@@ -247,9 +266,8 @@ public class BluetoothLeService extends Service {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        
-        // TODO: Why not autoconnect?
-        // We want to directly connect to the device, 
+
+        // We want to manually manage the connection to the device,
         // so we are setting the autoConnect parameter to false
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
@@ -259,7 +277,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Disconnects an existing connection or cancel a pending connection. 
+     * Disconnects an existing connection or cancel a pending connection.
      * The disconnection result is reported asynchronously through the
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
@@ -274,7 +292,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * After using a given BLE device, 
+     * After using a given BLE device,
      * the app must call this method to ensure resources are released properly
      */
     public void close() {
@@ -292,12 +310,12 @@ public class BluetoothLeService extends Service {
      */
     private void filterGattServices() {
         List<BluetoothGattService> gattServices = mBluetoothGatt.getServices();
-        
+
         // Loop through available GATT Services
         String uuid = null;
         for (BluetoothGattService gattService : gattServices) {
             List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-                    
+
             // Loop through available Characteristics
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
                 uuid = gattCharacteristic.getUuid().toString();
@@ -307,14 +325,18 @@ public class BluetoothLeService extends Service {
             }
         }
     }
-    
-    private class PollDeviceTask extends TimerTask { 
+
+    private class PollDeviceTask extends TimerTask {
         public void run() {
-            if (mBluetoothAdapter != null 
-                    && mBluetoothGatt != null 
+            if (mBluetoothAdapter != null
+                    && mBluetoothGatt != null
                     && mCharacteristic != null) {
-                mBluetoothGatt.readCharacteristic(mCharacteristic);
+                if (mConnectionState == STATE_DISCONNECTED && mBluetoothDeviceAddress != null) {
+                    connect(mBluetoothDeviceAddress);
+                } else if (mConnectionState == STATE_CONNECTED) {
+                    mBluetoothGatt.readCharacteristic(mCharacteristic);
+                }
             }
         }
-    }  
+    }
 }
