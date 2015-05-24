@@ -11,7 +11,7 @@ import android.view.View;
 public class WelcomeActivity extends Activity {
 
     public void onLoginClick(View view) {
-        Intent goToLoginPage = new Intent(this, DeviceScanActivity.class);
+        Intent goToLoginPage = new Intent(this, LoginActivity.class);
         startActivity(goToLoginPage);
     }
 

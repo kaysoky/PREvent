@@ -2,24 +2,26 @@
 <resources>
     <string name="app_name">AtmoSPHERE</string>
     
+    <!-- BLE related -->
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="label_data">Data:</string>
-    <string name="label_device_address">Device address:</string>
-    <string name="label_state">State:</string>
     <string name="no_data">No data</string>
-    <string name="connected">Connected</string>
-    <string name="disconnected">Disconnected</string>
     <string name="title_devices">BLE Device Scan</string>
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
     <string name="foreground_service_text">AtmoSPHERE connection is active.</string>
-
     <string name="unknown_device">Unknown device</string>
-    <string name="unknown_characteristic">Unknown characteristic</string>
-    <string name="unknown_service">Unknown service</string>
+    
+    <!-- Login related -->
+    <string name="username_label">Username:</string>
+    <string name="username_hint">Your username</string>
+    <string name="password_label">Password:</string>
+    <string name="password_hint">Your password</string>
+    <string name="submit_text">Submit</string>
+    <string name="login_fail_title">Login failed</string>
+    <string name="login_fail_message">Incorrect username/password.  Please try again.</string>
+    <string name="ok_text">OK</string>
 
     <!-- Menu items -->
-    <string name="menu_connect">Connect</string>
-    <string name="menu_disconnect">Disconnect</string>
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
 </resources>

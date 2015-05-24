@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:gravity="center|top">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/username_label"
+        android:padding="10dp"/>
+
+    <EditText
+        android:layout_width= "match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/username_hint"
+        android:id="@+id/usernameInput" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/password_label"
+        android:padding="10dp"/>
+
+    <EditText
+        android:layout_width= "match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/password_hind"
+        android:id="@+id/passwordInput"
+        android:inputType="textPassword"
+        android:password="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/submit_text"
+        android:textColor="@color/white"
+        android:background="@drawable/lv5small"
+        android:layout_gravity="center_horizontal"
+        style="?android:attr/borderlessButtonStyle"
+        android:onClick="onloginSubmitClick"/>
+</LinearLayout>
