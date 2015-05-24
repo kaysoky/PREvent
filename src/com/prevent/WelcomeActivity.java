@@ -15,7 +15,7 @@ public class WelcomeActivity extends Activity {
         // Check for a prior login
         if (getSharedPreferences(LoginActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
                 .getBoolean(LoginActivity.AUTHENTICATION_CHECKED_KEY, false)) {
-            Intent goToLoginPage = new Intent(this, DeviceScanActivity.class);
+            Intent goToLoginPage = new Intent(this, NavigationActivity.class);
             startActivity(goToLoginPage);
         } else {
             onLoginClick(view);

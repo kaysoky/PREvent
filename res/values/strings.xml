@@ -10,6 +10,10 @@
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
     <string name="foreground_service_text">AtmoSPHERE connection is active.</string>
     <string name="unknown_device">Unknown device</string>
+
+    <!-- BLE Menu items -->
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
     
     <!-- Login related -->
     <string name="username_label">Username:</string>
@@ -22,7 +26,11 @@
     <string name="ok_text">OK</string>
     <string name="error_no_internet">Please check your internet connection.</string>
 
-    <!-- Menu items -->
-    <string name="menu_scan">Scan</string>
-    <string name="menu_stop">Stop</string>
+    <!-- Navigation related -->
+    <string name="title_now_section">Now</string>
+    <string name="title_day_section">24 Hours</string>
+    <string name="title_cumulative_section">All time</string>
+    <string name="title_website_section">Website</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

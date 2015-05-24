@@ -122,7 +122,7 @@ public class LoginActivity extends Activity {
                 // Make a note that the login succeeded
                 editor.putBoolean(AUTHENTICATION_CHECKED_KEY, true);
 
-                Intent goToMainPage = new Intent(context, DeviceScanActivity.class);
+                Intent goToMainPage = new Intent(context, NavigationActivity.class);
                 startActivity(goToMainPage);
             } else {
                 Log.i(TAG, "Error logging in");
