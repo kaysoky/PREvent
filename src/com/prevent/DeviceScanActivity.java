@@ -33,13 +33,13 @@ import java.util.ArrayList;
  */
 public class DeviceScanActivity extends ListActivity {
     private final static String TAG = DeviceScanActivity.class.getSimpleName();
-    
+
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
     private BluetoothLeService mBluetoothLeService;
     private TextView mDataField;
-    
+
     // State variables
     private boolean mScanning;
     private boolean mServiceBound;
@@ -48,12 +48,15 @@ public class DeviceScanActivity extends ListActivity {
 
     // Expected result code from asking the user to enable Bluetooth
     private static final int REQUEST_ENABLE_BT = 1;
-    
+
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 25000;
-    
+
     // Name of the expected peripheral device
     private static final String PERIPHERAL_NAME = "AirMonitor";
+
+    // Name of the file to store the last connected device address
+    private static final String CACHED_PERIPHERAL_ADDRESS = "BLE_device_address.txt";
 
     // Code to manage service lifecycle
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -71,7 +74,7 @@ public class DeviceScanActivity extends ListActivity {
             mBluetoothLeService = null;
         }
     };
-    
+
     // Handles various events fired by the BluetoothLeService
     // ACTION_GATT_CONNECTED: connected to a GATT server
     // ACTION_GATT_DISCONNECTED: disconnected from a GATT server
@@ -115,11 +118,7 @@ public class DeviceScanActivity extends ListActivity {
             finish();
             return;
         }
-        
-        // Bind the background service
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-        
+
         mDataField = (TextView) findViewById(R.id.data_value);
     }
 
@@ -169,8 +168,14 @@ public class DeviceScanActivity extends ListActivity {
         // Initializes list view adapter.
         mLeDeviceListAdapter = new LeDeviceListAdapter();
         setListAdapter(mLeDeviceListAdapter);
+
+        // Bind the background service
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+        // Start scanning
         scanLeDevice(true);
-        
+
         // Listen for messages from the service
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
@@ -207,20 +212,20 @@ public class DeviceScanActivity extends ListActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
-        
+
         // Stop scanning
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
             invalidateOptionsMenu();
         }
-        
+
         // Connect to the device
         mDeviceAddress = device.getAddress();
         Log.d(TAG, "Connecting to device at: " + mDeviceAddress);
-        mBluetoothLeService.connect(mDeviceAddress);        
+        mBluetoothLeService.connect(mDeviceAddress);
         mServiceBound = true;
-            
+
         // TODO: Change to another activity, like the main page
         // final Intent intent = new Intent(this, TODO_Activity.class);
         // startActivity(intent);
@@ -345,7 +350,7 @@ public class DeviceScanActivity extends ListActivity {
      */
     private void displayData(Intent intent) {
         mDataField.setText(
-            "T: " + intent.getIntExtra(BluetoothLeService.EXTRA_TEMP_DATA, -1) 
+            "T: " + intent.getIntExtra(BluetoothLeService.EXTRA_TEMP_DATA, -1)
          + ",H: " + intent.getIntExtra(BluetoothLeService.EXTRA_HUMI_DATA, -1)
          + ",V: " + intent.getIntExtra(BluetoothLeService.EXTRA_VOC_DATA, -1)
          + ",P: " + intent.getIntExtra(BluetoothLeService.EXTRA_PM_DATA, -1));

@@ -1,6 +1,8 @@
 package com.prevent;
 
 import android.app.Service;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -69,7 +71,10 @@ public class BluetoothLeService extends Service {
 
     // Interval at which to poll for data
     // Should match the sleep/wake cycle of the device
-    private static final int DATA_POLL_INTERVAL = 2500;
+    private static final int DATA_POLL_INTERVAL = 8000;
+    
+    // Some arbitrary number
+    private static final int ONGOING_NOTIFICATION_ID = 8989;
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -146,11 +151,10 @@ public class BluetoothLeService extends Service {
                 Log.e(TAG, "Unexpected data: " + stringBuilder.toString());
             }
         } else if (Arrays.equals(data, previousData)) {
-            // If we've gotton the same data as before, 
+            // If we've gotten the same data as before, 
             // then our connection to the GATT server has probably been lost
             // Note: the Android device takes significantly longer to realize this
-            Log.w(TAG, "Detected stale (cached) data, attempting to reconnect");
-            connect(mBluetoothDeviceAddress);
+            Log.w(TAG, "Detected stale (cached) data :(");
         } else {
             // Convert unsigned bytes to int
             // Note: the masking is necessary
@@ -197,10 +201,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that BluetoothGatt.close() is called
-        // such that resources are cleaned up properly.  In this particular example, close() is
-        // invoked when the UI is disconnected from the Service.
-        close();
         return super.onUnbind(intent);
     }
 
@@ -210,6 +210,20 @@ public class BluetoothLeService extends Service {
     public void onCreate() {
         // Start polling for data every few seconds
         timer.scheduleAtFixedRate(new PollDeviceTask(), 0, DATA_POLL_INTERVAL);
+        
+        // Promote this service to the foreground
+        Notification notification = new Notification(R.drawable.icon, 
+            getText(R.string.foreground_service_text), System.currentTimeMillis());
+        Intent notificationIntent = new Intent(this, WelcomeActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notification.setLatestEventInfo(this, getText(R.string.app_name),
+                getText(R.string.foreground_service_text), pendingIntent);
+        startForeground(ONGOING_NOTIFICATION_ID, notification);
+    }
+    
+    @Override
+    public void onDestroy() {
+        disconnect();
     }
 
     /**
@@ -289,19 +303,6 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.disconnect();
         mCharacteristic = null;
-    }
-
-    /**
-     * After using a given BLE device,
-     * the app must call this method to ensure resources are released properly
-     */
-    public void close() {
-        if (mBluetoothGatt == null) {
-            return;
-        }
-        mCharacteristic = null;
-        mBluetoothGatt.close();
-        mBluetoothGatt = null;
     }
 
     /**
