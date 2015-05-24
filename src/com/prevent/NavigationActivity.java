@@ -2,16 +2,11 @@ package com.prevent;
 
 import android.app.Activity;
 
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 
@@ -40,18 +35,23 @@ public class NavigationActivity extends Activity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         Fragment objFragment = null;
+        String title = null;
         switch (position){
             case 0:
                 objFragment = new NowFragment();
+                title = getString(R.string.title_now_section);
                 break;
             case 1:
                 objFragment = new NowFragment();
+                title = getString(R.string.title_day_section);
                 break;
             case 2:
                 objFragment = new NowFragment();
+                title = getString(R.string.title_cumulative_section);
                 break;
             case 3:
                 objFragment = new NowFragment();
+                title = getString(R.string.title_website_section);
                 break;
             default:
                 Log.e(TAG, "Invalid navigation drawer item selected");
@@ -63,5 +63,6 @@ public class NavigationActivity extends Activity
         fragmentManager.beginTransaction()
             .replace(R.id.container, objFragment)
             .commit();
+        getActionBar().setTitle(title);
     }
 }
