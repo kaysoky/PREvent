@@ -38,12 +38,10 @@ public class DeviceScanActivity extends ListActivity {
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
     private BluetoothLeService mBluetoothLeService;
-    private TextView mDataField;
 
     // State variables
     private boolean mScanning;
     private boolean mServiceBound;
-    private boolean mConnected;
     private String mDeviceAddress;
 
     // Expected result code from asking the user to enable Bluetooth
@@ -75,25 +73,6 @@ public class DeviceScanActivity extends ListActivity {
         }
     };
 
-    // Handles various events fired by the BluetoothLeService
-    // ACTION_GATT_CONNECTED: connected to a GATT server
-    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server
-    // ACTION_DATA_AVAILABLE: received data from the device
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            Log.d(TAG, "Received broadcast: " + action);
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent);
-            }
-        }
-    };
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,8 +97,6 @@ public class DeviceScanActivity extends ListActivity {
             finish();
             return;
         }
-
-        mDataField = (TextView) findViewById(R.id.data_value);
     }
 
     @Override
@@ -175,9 +152,6 @@ public class DeviceScanActivity extends ListActivity {
 
         // Start scanning
         scanLeDevice(true);
-
-        // Listen for messages from the service
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
     @Override
@@ -226,9 +200,9 @@ public class DeviceScanActivity extends ListActivity {
         mBluetoothLeService.connect(mDeviceAddress);
         mServiceBound = true;
 
-        // TODO: Change to another activity, like the main page
-        // final Intent intent = new Intent(this, TODO_Activity.class);
-        // startActivity(intent);
+        // Service should be functional now, so this activity is done
+        final Intent intent = new Intent(this, NavigationActivity.class);
+        startActivity(intent);
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -342,25 +316,5 @@ public class DeviceScanActivity extends ListActivity {
     static class ViewHolder {
         TextView deviceName;
         TextView deviceAddress;
-    }
-
-    /**
-     * Unpacks separated data from service and displays it in a text box
-     * TODO: Convert to %'s and degrees (temperature only)
-     */
-    private void displayData(Intent intent) {
-        mDataField.setText(
-            "T: " + intent.getIntExtra(BluetoothLeService.EXTRA_TEMP_DATA, -1)
-         + ",H: " + intent.getIntExtra(BluetoothLeService.EXTRA_HUMI_DATA, -1)
-         + ",V: " + intent.getIntExtra(BluetoothLeService.EXTRA_VOC_DATA, -1)
-         + ",P: " + intent.getIntExtra(BluetoothLeService.EXTRA_PM_DATA, -1));
-    }
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
     }
 }

@@ -14,6 +14,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -50,28 +51,31 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
-    // Intent actions and extras
-    public final static String ACTION_GATT_CONNECTED =
-            "com.prevent.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED =
-            "com.prevent.ACTION_GATT_DISCONNECTED";
+    // Notification that data has changed
     public final static String ACTION_DATA_AVAILABLE =
             "com.prevent.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_TEMP_DATA =
-            "com.prevent.EXTRA_TEMP_DATA";
-    public final static String EXTRA_HUMI_DATA =
-            "com.prevent.EXTRA_HUMI_DATA";
-    public final static String EXTRA_VOC_DATA =
-            "com.prevent.EXTRA_VOC_DATA";
-    public final static String EXTRA_PM_DATA =
-            "com.prevent.EXTRA_PM_DATA";
+            
+    // Data caching
+    public final static String SHARED_PREFERENCES_NAME = "data_cache";
+    public final statis String RECENT_TEMP_DATA_KEY = "temperature";
+    public final statis String RECENT_HUMI_DATA_KEY = "humidity";
+    public final statis String RECENT_VOCS_DATA_KEY = "vocs";
+    public final statis String RECENT_PART_DATA_KEY = "particulates";
+    public final statis String CUMULATIVE_TEMP_DATA_KEY = "sum_temperature";
+    public final statis String CUMULATIVE_HUMI_DATA_KEY = "sum_humidity";
+    public final statis String CUMULATIVE_VOCS_DATA_KEY = "sum_vocs";
+    public final statis String CUMULATIVE_PART_DATA_KEY = "sum_particulates";
 
     // Characteristic UUID from which to read data
     private static final String DATA_CHARACTERISTIC_UUID = "21819ab0-c937-4188-b0db-b9621e1696cd";
 
     // Interval at which to poll for data
     // Should match the sleep/wake cycle of the device
-    private static final int DATA_POLL_INTERVAL = 8000;
+    private static final int DATA_POLL_INTERVAL = 2000;
+    
+    // Number of samples in the moving average
+    // This should be equal to 24 hours / Bluetooth device broadcast interval
+    public static final int MOVING_AVERAGE_SAMPLES = 10800;
     
     // Some arbitrary number
     private static final int ONGOING_NOTIFICATION_ID = 8989;
@@ -81,11 +85,8 @@ public class BluetoothLeService extends Service {
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
-                broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
 
                 // Attempts to discover services after successful connection.
@@ -93,10 +94,8 @@ public class BluetoothLeService extends Service {
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
-                broadcastUpdate(intentAction);
             }
         }
 
@@ -166,23 +165,47 @@ public class BluetoothLeService extends Service {
             //   14-bits Humidity
             //   10-bits VOC
             //   10-bits PM
-            int temperature = extras[0] << 8 | (extras[1] & 0xFC) >> 2;
-            int humidity = (extras[1] & 0x3) << 12 | extras[2] << 4 | (extras[3] & 0xF0) >> 4;
-            int voc = (extras[3] & 0xF) << 6 | (extras[4] & 0xFC) >> 2;
-            int particulates = (extras[4] & 0x3) << 8 | extras[5];
+            int temp = extras[0] << 8 | (extras[1] & 0xFC) >> 2;
+            int humi = (extras[1] & 0x3) << 12 | extras[2] << 4 | (extras[3] & 0xF0) >> 4;
+            int vocs = (extras[3] & 0xF) << 6 | (extras[4] & 0xFC) >> 2;
+            int part = (extras[4] & 0x3) << 8 | extras[5];
 
             Log.d(TAG, "Got data ("
-                 +  "T: " + temperature
-                 + ",H: " + humidity
-                 + ",V: " + voc
-                 + ",P: " + particulates + ")");
+                 +  "T: " + temp
+                 + ",H: " + humi
+                 + ",V: " + vocs
+                 + ",P: " + part + ")");
+                 
+            // Convert raw data to floats
+            float f_temp = temp / 16384.0f * 165.0f - 40;
+            float f_humi = humi / 16384.0f * 100.0f;
+            float f_vocs = vocs / 10.23f;
+            float f_part = part / 10.23f;
+            
+            // Calculate moving average
+            SharedPreferences storage = getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+            float sum_temp = storage.getFloat(CUMULATIVE_TEMP_DATA_KEY, MOVING_AVERAGE_SAMPLES * f_temp);
+            float sum_humi = storage.getFloat(CUMULATIVE_HUMI_DATA_KEY, MOVING_AVERAGE_SAMPLES * f_humi);
+            float sum_vocs = storage.getFloat(CUMULATIVE_VOCS_DATA_KEY, MOVING_AVERAGE_SAMPLES * f_vocs);
+            float sum_part = storage.getFloat(CUMULATIVE_PART_DATA_KEY, MOVING_AVERAGE_SAMPLES * f_part);
+            sum_temp = sum_temp + f_temp - sum_temp / MOVING_AVERAGE_SAMPLES;
+            sum_humi = sum_humi + f_humi - sum_humi / MOVING_AVERAGE_SAMPLES;
+            sum_vocs = sum_vocs + f_vocs - sum_vocs / MOVING_AVERAGE_SAMPLES;
+            sum_part = sum_part + f_part - sum_part / MOVING_AVERAGE_SAMPLES;
+            
+            // Save the data in a persistent way
+            SharedPreferences.Editor editor = storage.edit();
+            editor.putFloat(RECENT_TEMP_DATA_KEY, f_temp);
+            editor.putFloat(RECENT_HUMI_DATA_KEY, f_humi);
+            editor.putFloat(RECENT_VOCS_DATA_KEY, f_vocs);
+            editor.putFloat(RECENT_PART_DATA_KEY, f_part);
+            editor.putFloat(CUMULATIVE_TEMP_DATA_KEY, sum_temp);
+            editor.putFloat(CUMULATIVE_HUMI_DATA_KEY, sum_humi);
+            editor.putFloat(CUMULATIVE_VOCS_DATA_KEY, sum_vocs);
+            editor.putFloat(CUMULATIVE_PART_DATA_KEY, sum_part);
+            editor.commit();
 
-            // Add parsed data into intent
-            intent.putExtra(EXTRA_TEMP_DATA, temperature);
-            intent.putExtra(EXTRA_HUMI_DATA, humidity);
-            intent.putExtra(EXTRA_VOC_DATA, voc);
-            intent.putExtra(EXTRA_PM_DATA, particulates);
-
+            // Broadcast data update
             previousData = data;
             sendBroadcast(intent);
         }
@@ -327,6 +350,9 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    /**
+     * Polls for data and reconnects when necessary
+     */
     private class PollDeviceTask extends TimerTask {
         public void run() {
             if (mBluetoothAdapter != null
@@ -339,5 +365,14 @@ public class BluetoothLeService extends Service {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the intent filter used to receive data update notifications
+     */
+    public static IntentFilter getGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 }

@@ -9,41 +9,35 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="1"
-        android:text="Humidity Level: 4"
-        android:background="@color/lv4"
         android:textSize="@dimen/font_size_in_menus"
         android:layout_margin="@dimen/margin_in_menus"
-        android:id="@+id/humidityReading" />
+        android:id="@+id/particulateReading"
+        android:onClick="onParticulateClick" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="1"
-        android:text="Temperature: 35.8C"
-        android:background="@color/lv3"
         android:textSize="@dimen/font_size_in_menus"
         android:layout_margin="@dimen/margin_in_menus"
-        android:id="@+id/tempReading" />
-
+        android:id="@+id/vocReading"
+        android:onClick="onVOCClick" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="1"
-        android:text="Particulate Level: 7"
-        android:background="@color/lv7"
         android:textSize="@dimen/font_size_in_menus"
         android:layout_margin="@dimen/margin_in_menus"
-        android:id="@+id/particulateReading" />
-
+        android:id="@+id/tempReading"
+        android:onClick="onTemperatureClick" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="1"
-        android:text="VOC Level: 1"
-        android:background="@color/lv1"
         android:textSize="@dimen/font_size_in_menus"
         android:layout_margin="@dimen/margin_in_menus"
-        android:id="@+id/vocReading" />
+        android:id="@+id/humidityReading"
+        android:onClick="onHumidityClick" />
 </LinearLayout>

@@ -1,6 +1,8 @@
 package com.prevent;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -9,58 +11,103 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.Math;
+
 /**
  * Shows only the most recent sensor reading
  */
 public class NowFragment extends Fragment {
-    private TextView humidity;
-    private TextView temp;
-    private TextView particulate;
-    private TextView voc;
-    View rootview;
+    private TextView temp_view;
+    private TextView humi_view;
+    private TextView vocs_view;
+    private TextView part_view;
+
+    /**
+     * Receives data from the BluetoothLeService
+     */
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                updateTextViews();
+            }
+        }
+    };
+    
+    /**
+     * Fetches the latest sensor data and updates the text views
+     */
+    private void updateTextViews() {
+        SharedPreferences storage = getActivity().getSharedPreferences(BluetoothLeService.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+        float temp = storage.getFloat(RECENT_TEMP_DATA_KEY, 0.0f);
+        float humi = storage.getFloat(RECENT_HUMI_DATA_KEY, 0.0f);
+        float vocs = storage.getFloat(RECENT_VOCS_DATA_KEY, 0.0f);
+        float part = storage.getFloat(RECENT_PART_DATA_KEY, 0.0f);
+        temp_view.setText(getText(R.string.temp_text_label) + String.format("%.2f", temp) + "C");
+        humi_view.setText(getText(R.string.humi_text_label) + String.format("%.2f", humi) + "%");
+        vocs_view.setText(getText(R.string.vocs_text_label) + String.format("%.2f", vocs) + "%");
+        part_view.setText(getText(R.string.part_text_label) + String.format("%.2f", part) + "%");
+        temp_view.setBackgroundColor(getAssociatedColor(Math.abs(temp - 20) / 35.0f));
+        humi_view.setBackgroundColor(getAssociatedColor(humi / 100.0f));
+        vocs_view.setBackgroundColor(getAssociatedColor(vocs / 100.0f));
+        part_view.setBackgroundColor(getAssociatedColor(part / 100.0f));
+    }
+    
+    /**
+     * Interpolates between green and red based on the given value (0-1)
+     */
+    private int getAssociatedColor(float value) {
+        int green = getColor(R.color.green);
+        int red = getColor(R.color.red);
+        double lerp = Math.max(0.0, Math.min(1.0, value));
+        return (int) (red * lerp + green * (1.0 - lerp));
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootview = inflater.inflate(R.layout.now_fragment_layout, container, false);
-        return rootview;
+        return inflater.inflate(R.layout.now_fragment_layout, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
-        humidity = (TextView) getActivity().findViewById(R.id.humidityReading);
-        humidity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("onHumidityClick called");
-                Toast.makeText(getActivity(), "Humidity level is relatively low, please drink more water and keep hydrated", Toast.LENGTH_SHORT).show();
-            }
-        });
 
-        temp = (TextView) getActivity().findViewById(R.id.tempReading);
-        temp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "Summer is coming, enjoy", Toast.LENGTH_SHORT).show();
-            }
-        });
+        temp_view = (TextView) getActivity().findViewById(R.id.tempReading);
+        humi_view = (TextView) getActivity().findViewById(R.id.humidityReading);
+        vocs_view = (TextView) getActivity().findViewById(R.id.vocReading);
+        part_view = (TextView) getActivity().findViewById(R.id.particulateReading);
+    }
 
-        particulate = (TextView) getActivity().findViewById(R.id.particulateReading);
-        particulate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "Particulate density is high, please consider changing your area of activity", Toast.LENGTH_SHORT).show();
-            }
-        });
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().registerReceiver(mGattUpdateReceiver, BluetoothLeService.getGattUpdateIntentFilter());
+        updateTextViews();
+    }
 
-        voc = (TextView) getActivity().findViewById(R.id.vocReading);
-        voc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "No hazardous gases detected", Toast.LENGTH_SHORT).show();
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(mGattUpdateReceiver);
+    }
+
+    /***** Click handlers *****/
+
+    public void onTemperatureClick(View view) {
+        // Toast.makeText(getActivity(), "Summer is coming, enjoy", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onHumidityClick(View view) {
+        // Toast.makeText(getActivity(), "Humidity level is relatively low, please drink more water and keep hydrated", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onVOCClick(View view) {
+        // Toast.makeText(getActivity(), "No hazardous gases detected", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onParticulateClick(View view) {
+        // Toast.makeText(getActivity(), "Particulate density is high, please consider changing your area of activity", Toast.LENGTH_SHORT).show();
     }
 }

@@ -4,8 +4,6 @@
     
     <!-- BLE related -->
     <string name="ble_not_supported">BLE is not supported</string>
-    <string name="label_data">Data:</string>
-    <string name="no_data">No data</string>
     <string name="title_devices">BLE Device Scan</string>
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
     <string name="foreground_service_text">AtmoSPHERE connection is active.</string>
@@ -33,4 +31,10 @@
     <string name="title_website_section">Website</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Data related -->
+    <string name="temp_text_label">Temperature: </string>
+    <string name="humi_text_label">Humidity: </string>
+    <string name="vocs_text_label">Volatile Organics: </string>
+    <string name="part_text_label">Particulates: </string>
 </resources>
