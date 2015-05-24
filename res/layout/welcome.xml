@@ -25,6 +25,21 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Continue"
+            android:textColor="@color/white"
+            android:background="@drawable/lv5small"
+            android:layout_gravity="center_horizontal"
+            style="?android:attr/borderlessButtonStyle"
+            android:onClick="onContinueClick"
+            android:layout_marginBottom="86dp"
+            android:layout_marginLeft="80dp"
+            android:id="@+id/button"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Login"
             android:textColor="@color/white"
             android:background="@drawable/lv5small"
@@ -32,7 +47,7 @@
             style="?android:attr/borderlessButtonStyle"
             android:onClick="onLoginClick"
             android:layout_marginBottom="86dp"
-            android:layout_marginLeft="80dp"
+            android:layout_marginRight="120dp"
             android:id="@+id/button"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true" />

@@ -27,7 +27,7 @@
     <EditText
         android:layout_width= "match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/password_hind"
+        android:hint="@string/password_hint"
         android:id="@+id/passwordInput"
         android:inputType="textPassword"
         android:password="true"/>

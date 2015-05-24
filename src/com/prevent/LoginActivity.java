@@ -2,13 +2,19 @@ package com.prevent;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -28,7 +34,11 @@ public class LoginActivity extends Activity {
     private final static String TAG = LoginActivity.class.getSimpleName();
 
     private final static String AUTHENTICATION_ENDPOINT = "http://attu.cs.washington.edu:8000/auth/";
+    public final static String SHARED_PREFERENCES_NAME = "login_preferences";
+    public final static String AUTHENTICATION_PREFERENCE_KEY = "basic_credentials_b64";
+    public final static String AUTHENTICATION_CHECKED_KEY = "authentication_passed";
 
+    private Activity context;
     private EditText usernameView;
     private EditText passwordView;
 
@@ -36,50 +46,38 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page);
+        context = this;
         usernameView = (EditText)findViewById(R.id.usernameInput);
         passwordView = (EditText)findViewById(R.id.passwordInput);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check for an internet connection
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo == null || !netInfo.isConnectedOrConnecting()) {
+            Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     /**
      * Spawns a thread to check the login credentials
      */
     public void onloginSubmitClick(View view){
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                submitLoginInfo();
-            }
-        });
-
-        thread.start();
-    }
-
-    /**
-     * Helper for making an HTTP GET to the authentication check endpoint
-     */
-    public void submitLoginInfo() {
         // Fetch the credentials
         String username = usernameView.getText().toString();
         String password = passwordView.getText().toString();
+        String credentials = getB64Auth(username, password);
+        new CredentialCheckTask().execute(credentials);
 
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpGet HttpGet = new HttpGet(AUTHENTICATION_ENDPOINT);
-            HttpGet.setHeader("Accept", "application/json");
-            HttpGet.setHeader("Authorization", getB64Auth(username, password));
-
-            HttpResponse httpResponse = httpclient.execute(HttpGet);
-            if (httpResponse.getStatusLine().getStatusCode() == 200) {
-                Log.i(TAG, "Login successful");
-                Intent goToMainPage = new Intent(this, DeviceScanActivity.class);
-                startActivity(goToMainPage);
-            } else {
-                Log.i(TAG, "Error logging in");
-                showLoginErrorDialog();
-            }
-        } catch (IOException e) {
-            Log.i(TAG, "Exception while logging in", e);
-        }
+        SharedPreferences.Editor editor = 
+            getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE).edit();
+        editor.putString(AUTHENTICATION_PREFERENCE_KEY, credentials);
+        editor.commit();
     }
 
     /**
@@ -91,21 +89,62 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Helper for showing a dialog upon login failure
+     * Used to offload the network IO onto a thread
      */
-    public void showLoginErrorDialog(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getApplicationContext());
+    private class CredentialCheckTask extends AsyncTask<String, Integer, Boolean> {
+        protected Boolean doInBackground(String... credentials) {
+            if (credentials.length != 1) {
+                return false;
+            }
 
-        alertDialogBuilder.setTitle(getText(R.string.login_fail_title));
-        alertDialogBuilder
-            .setMessage(getText(R.string.login_fail_message))
-                .setCancelable(false)
-                .setPositiveButton(getText(R.string.ok_text), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+            try {
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpGet HttpGet = new HttpGet(AUTHENTICATION_ENDPOINT);
+                HttpGet.setHeader("Accept", "application/json");
+                HttpGet.setHeader("Authorization", credentials[0]);
+
+                HttpResponse httpResponse = httpclient.execute(HttpGet);
+                return httpResponse.getStatusLine().getStatusCode() == 200;
+            } catch (IOException e) {
+                Log.i(TAG, "Exception while logging in", e);
+            }
+
+            return false;
+        }
+
+        protected void onPostExecute(Boolean result) {
+            SharedPreferences.Editor editor = 
+                context.getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE).edit();
+
+            if (result) {
+                Log.i(TAG, "Login successful");
+
+                // Make a note that the login succeeded
+                editor.putBoolean(AUTHENTICATION_CHECKED_KEY, true);
+
+                Intent goToMainPage = new Intent(context, DeviceScanActivity.class);
+                startActivity(goToMainPage);
+            } else {
+                Log.i(TAG, "Error logging in");
+
+                // Make a note that the login failed
+                editor.putBoolean(AUTHENTICATION_CHECKED_KEY, false);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                alertDialogBuilder.setTitle(getText(R.string.login_fail_title));
+                alertDialogBuilder
+                    .setMessage(getText(R.string.login_fail_message))
+                        .setCancelable(false)
+                        .setPositiveButton(getText(R.string.ok_text), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+
+            editor.commit();
+        }
     }
 }
