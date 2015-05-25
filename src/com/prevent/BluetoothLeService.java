@@ -1,6 +1,5 @@
 package com.prevent;
 
-import android.app.AlertDialog;
 import android.app.Service;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -14,21 +13,21 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.provider.Settings;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -247,18 +246,21 @@ public class BluetoothLeService extends Service implements LocationListener {
                     json.put("particulate", f_part);
 
                     // Format the HTTP POST
+                    HttpClient httpclient = new DefaultHttpClient();
                     HttpPost httpPost = new HttpPost("http://attu.cs.washington.edu:8000/data/");
                     httpPost.setEntity(new StringEntity(json.toString()));
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
-                    httpPost.setHeader("Authorization", "Basic "
-                        + getSharedPreferences(LoginActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+                    httpPost.setHeader("Authorization", 
+                        getSharedPreferences(LoginActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
                             .getString(LoginActivity.AUTHENTICATION_PREFERENCE_KEY, ""));
 
                     // Post and check result
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() != 201) {
                         Log.e(TAG, "Post to server failed with status code: " + httpResponse.getStatusLine().getStatusCode());
+                    } else {
+                        Log.v(TAG, "Posted data to server");
                     }
 
                 } catch (IOException e) {
@@ -266,6 +268,8 @@ public class BluetoothLeService extends Service implements LocationListener {
                 } catch (JSONException e) {
                     Log.w(TAG, "Error while saving data to server", e);
                 }
+            } else {
+                Log.w(TAG, "No location data available, cannot post to server");
             }
         }
     }
@@ -304,26 +308,10 @@ public class BluetoothLeService extends Service implements LocationListener {
 
         // Initialize the location manager
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER,
-                MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        } else {
-            Context context = this;
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            alertDialog.setTitle(getText(R.string.gps_fail_title));
-            alertDialog.setMessage(getText(R.string.gps_fail_message));
-            alertDialog.setPositiveButton(getText(R.string.ok_text), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    context.startActivity(intent);
-                }
-            });
-            alertDialog.show();
-        }
-        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+            MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+            MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
     }
 
     @Override
