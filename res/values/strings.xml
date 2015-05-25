@@ -36,4 +36,6 @@
     <string name="humi_text_label">Humidity: </string>
     <string name="vocs_text_label">Volatile Organics: </string>
     <string name="part_text_label">Particulates: </string>
+    <string name="gps_fail_title">Location services required</string>
+    <string name="gps_fail_message">Please enable your location services.</string>
 </resources>

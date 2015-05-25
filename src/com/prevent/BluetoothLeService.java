@@ -1,5 +1,6 @@
 package com.prevent;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -13,14 +14,29 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.provider.Settings;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,7 +46,7 @@ import java.util.UUID;
  * Service for managing connection and data communication
  * with a GATT server hosted on a Bluetooth LE device
  */
-public class BluetoothLeService extends Service {
+public class BluetoothLeService extends Service implements LocationListener {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
     // Used to connect to the BLE device
@@ -55,7 +71,7 @@ public class BluetoothLeService extends Service {
     // Notification that data has changed
     public final static String ACTION_DATA_AVAILABLE =
             "com.prevent.ACTION_DATA_AVAILABLE";
-            
+
     // Data caching
     public final static String SHARED_PREFERENCES_NAME = "data_cache";
     public final static String RECENT_TEMP_DATA_KEY = "temperature";
@@ -73,13 +89,19 @@ public class BluetoothLeService extends Service {
     // Interval at which to poll for data
     // Should match the sleep/wake cycle of the device
     private static final int DATA_POLL_INTERVAL = 2000;
-    
+
     // Number of samples in the moving average
     // This should be equal to 24 hours / Bluetooth device broadcast interval
     public static final int MOVING_AVERAGE_SAMPLES = 10800;
-    
+
     // Some arbitrary number
     private static final int ONGOING_NOTIFICATION_ID = 8989;
+
+    // Used to get location data
+    private LocationManager mLocationManager;
+    private Location lastLocation;
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // meters
+    private static final long MIN_TIME_BW_UPDATES = 10000; // milliseconds
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -151,7 +173,7 @@ public class BluetoothLeService extends Service {
                 Log.e(TAG, "Unexpected data: " + stringBuilder.toString());
             }
         } else if (Arrays.equals(data, previousData)) {
-            // If we've gotten the same data as before, 
+            // If we've gotten the same data as before,
             // then our connection to the GATT server has probably been lost
             // Note: the Android device takes significantly longer to realize this
             Log.w(TAG, "Detected stale (cached) data :(");
@@ -176,13 +198,13 @@ public class BluetoothLeService extends Service {
                  + ",H: " + humi
                  + ",V: " + vocs
                  + ",P: " + part + ")");
-                 
+
             // Convert raw data to floats
             float f_temp = temp / 16384.0f * 165.0f - 40;
             float f_humi = humi / 16384.0f * 100.0f;
             float f_vocs = vocs / 10.23f;
             float f_part = part / 10.23f;
-            
+
             // Calculate moving average
             SharedPreferences storage = getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
             float sum_temp = storage.getFloat(CUMULATIVE_TEMP_DATA_KEY, MOVING_AVERAGE_SAMPLES * f_temp);
@@ -193,7 +215,7 @@ public class BluetoothLeService extends Service {
             sum_humi = sum_humi + f_humi - sum_humi / MOVING_AVERAGE_SAMPLES;
             sum_vocs = sum_vocs + f_vocs - sum_vocs / MOVING_AVERAGE_SAMPLES;
             sum_part = sum_part + f_part - sum_part / MOVING_AVERAGE_SAMPLES;
-            
+
             // Save the data in a persistent way
             SharedPreferences.Editor editor = storage.edit();
             editor.putFloat(RECENT_TEMP_DATA_KEY, f_temp);
@@ -209,6 +231,42 @@ public class BluetoothLeService extends Service {
             // Broadcast data update
             previousData = data;
             sendBroadcast(intent);
+
+            // Try to save the data to the website
+            if (lastLocation != null) {
+                try {
+                    // Package up the data, plus location and time
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+                    JSONObject json = new JSONObject();
+                    json.put("timestamp", sdf.format(new Date()));
+                    json.put("xcoord", lastLocation.getLongitude());
+                    json.put("ycoord", lastLocation.getLatitude());
+                    json.put("temperature", f_temp);
+                    json.put("humidity", f_humi);
+                    json.put("gas", f_vocs);
+                    json.put("particulate", f_part);
+
+                    // Format the HTTP POST
+                    HttpPost httpPost = new HttpPost("http://attu.cs.washington.edu:8000/data/");
+                    httpPost.setEntity(new StringEntity(json.toString()));
+                    httpPost.setHeader("Accept", "application/json");
+                    httpPost.setHeader("Content-type", "application/json");
+                    httpPost.setHeader("Authorization", "Basic "
+                        + getSharedPreferences(LoginActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+                            .getString(LoginActivity.AUTHENTICATION_PREFERENCE_KEY, ""));
+
+                    // Post and check result
+                    HttpResponse httpResponse = httpclient.execute(httpPost);
+                    if (httpResponse.getStatusLine().getStatusCode() != 201) {
+                        Log.e(TAG, "Post to server failed with status code: " + httpResponse.getStatusLine().getStatusCode());
+                    }
+
+                } catch (IOException e) {
+                    Log.w(TAG, "Error while saving data to server", e);
+                } catch (JSONException e) {
+                    Log.w(TAG, "Error while saving data to server", e);
+                }
+            }
         }
     }
 
@@ -234,17 +292,40 @@ public class BluetoothLeService extends Service {
     public void onCreate() {
         // Start polling for data every few seconds
         timer.scheduleAtFixedRate(new PollDeviceTask(), 0, DATA_POLL_INTERVAL);
-        
+
         // Promote this service to the foreground
-        Notification notification = new Notification(R.drawable.icon, 
+        Notification notification = new Notification(R.drawable.icon,
             getText(R.string.foreground_service_text), System.currentTimeMillis());
         Intent notificationIntent = new Intent(this, WelcomeActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         notification.setLatestEventInfo(this, getText(R.string.app_name),
                 getText(R.string.foreground_service_text), pendingIntent);
         startForeground(ONGOING_NOTIFICATION_ID, notification);
+
+        // Initialize the location manager
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER,
+                MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        } else {
+            Context context = this;
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setTitle(getText(R.string.gps_fail_title));
+            alertDialog.setMessage(getText(R.string.gps_fail_message));
+            alertDialog.setPositiveButton(getText(R.string.ok_text), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    context.startActivity(intent);
+                }
+            });
+            alertDialog.show();
+        }
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        }
     }
-    
+
     @Override
     public void onDestroy() {
         disconnect();
@@ -376,4 +457,19 @@ public class BluetoothLeService extends Service {
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
+
+    /***** LocationListener Interface *****/
+
+    @Override
+    public void onLocationChanged(Location location) {
+        lastLocation = location;
+    }
+
+    // Unused callbacks
+    @Override
+    public void onProviderDisabled(String provider) { }
+    @Override
+    public void onProviderEnabled(String provider) { }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
 }

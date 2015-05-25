@@ -134,12 +134,12 @@ public class LoginActivity extends Activity {
                 alertDialogBuilder.setTitle(getText(R.string.login_fail_title));
                 alertDialogBuilder
                     .setMessage(getText(R.string.login_fail_message))
-                        .setCancelable(false)
-                        .setPositiveButton(getText(R.string.ok_text), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
+                    .setCancelable(false)
+                    .setPositiveButton(getText(R.string.ok_text), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
             }
