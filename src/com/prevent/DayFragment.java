@@ -13,13 +13,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.Math;
-
 /**
- * Shows only the most recent sensor reading
+ * Shows a 24-hour moving average of recorded sensor values
  */
 public class NowFragment extends DisplayFragment {
-    
     /**
      * Fetches the latest sensor data and updates the text views
      */
@@ -28,17 +25,17 @@ public class NowFragment extends DisplayFragment {
         SharedPreferences storage = getActivity()
             .getSharedPreferences(BluetoothLeService.SHARED_PREFERENCES_NAME, 
                 Context.MODE_PRIVATE);
-        float temp = storage.getFloat(BluetoothLeService.RECENT_TEMP_DATA_KEY, 0.0f);
-        float humi = storage.getFloat(BluetoothLeService.RECENT_HUMI_DATA_KEY, 0.0f);
-        float vocs = storage.getFloat(BluetoothLeService.RECENT_VOCS_DATA_KEY, 0.0f);
-        float part = storage.getFloat(BluetoothLeService.RECENT_PART_DATA_KEY, 0.0f);
+        float temp = storage.getFloat(BluetoothLeService.CUMULATIVE_TEMP_DATA_KEY, 0.0f) / BluetoothLeService.MOVING_AVERAGE_SAMPLES;
+        float humi = storage.getFloat(BluetoothLeService.CUMULATIVE_HUMI_DATA_KEY, 0.0f) / BluetoothLeService.MOVING_AVERAGE_SAMPLES;
+        float vocs = storage.getFloat(BluetoothLeService.CUMULATIVE_VOCS_DATA_KEY, 0.0f) / BluetoothLeService.MOVING_AVERAGE_SAMPLES;
+        float part = storage.getFloat(BluetoothLeService.CUMULATIVE_PART_DATA_KEY, 0.0f) / BluetoothLeService.MOVING_AVERAGE_SAMPLES;
         temp_view.setText(getText(R.string.temp_text_label) + String.format("%.2f", temp) + "C");
         humi_view.setText(getText(R.string.humi_text_label) + String.format("%.2f", humi) + "%");
         vocs_view.setText(getText(R.string.vocs_text_label) + String.format("%.2f", vocs) + "%");
         part_view.setText(getText(R.string.part_text_label) + String.format("%.2f", part) + "%");
-        temp_view.setBackgroundColor(getAssociatedColor(Math.abs(temp - 20) / 35.0f));
-        humi_view.setBackgroundColor(getAssociatedColor(humi / 100.0f));
-        vocs_view.setBackgroundColor(getAssociatedColor(vocs / 100.0f));
-        part_view.setBackgroundColor(getAssociatedColor(part / 100.0f));
+        temp_view.setBackgroundColor(NowFragment.getAssociatedColor(Math.abs(temp - 20) / 35.0f));
+        humi_view.setBackgroundColor(NowFragment.getAssociatedColor(humi / 100.0f));
+        vocs_view.setBackgroundColor(NowFragment.getAssociatedColor(vocs / 100.0f));
+        part_view.setBackgroundColor(NowFragment.getAssociatedColor(part / 100.0f));
     }
 }

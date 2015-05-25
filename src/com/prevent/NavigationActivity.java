@@ -42,12 +42,8 @@ public class NavigationActivity extends Activity
                 title = getString(R.string.title_now_section);
                 break;
             case 1:
-                objFragment = new NowFragment();
+                objFragment = new DayFragment();
                 title = getString(R.string.title_day_section);
-                break;
-            case 2:
-                objFragment = new NowFragment();
-                title = getString(R.string.title_cumulative_section);
                 break;
             case 3:
                 objFragment = new NowFragment();

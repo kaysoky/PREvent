@@ -27,7 +27,6 @@
     <!-- Navigation related -->
     <string name="title_now_section">Now</string>
     <string name="title_day_section">24 Hours</string>
-    <string name="title_cumulative_section">All time</string>
     <string name="title_website_section">Website</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
