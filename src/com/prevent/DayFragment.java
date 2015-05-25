@@ -16,7 +16,7 @@ import android.widget.Toast;
 /**
  * Shows a 24-hour moving average of recorded sensor values
  */
-public class NowFragment extends DisplayFragment {
+public class DayFragment extends DisplayFragment {
     /**
      * Fetches the latest sensor data and updates the text views
      */
@@ -33,9 +33,9 @@ public class NowFragment extends DisplayFragment {
         humi_view.setText(getText(R.string.humi_text_label) + String.format("%.2f", humi) + "%");
         vocs_view.setText(getText(R.string.vocs_text_label) + String.format("%.2f", vocs) + "%");
         part_view.setText(getText(R.string.part_text_label) + String.format("%.2f", part) + "%");
-        temp_view.setBackgroundColor(NowFragment.getAssociatedColor(Math.abs(temp - 20) / 35.0f));
-        humi_view.setBackgroundColor(NowFragment.getAssociatedColor(humi / 100.0f));
-        vocs_view.setBackgroundColor(NowFragment.getAssociatedColor(vocs / 100.0f));
-        part_view.setBackgroundColor(NowFragment.getAssociatedColor(part / 100.0f));
+        temp_view.setBackgroundColor(getAssociatedColor(Math.abs(temp - 20) / 35.0f));
+        humi_view.setBackgroundColor(getAssociatedColor(humi / 100.0f));
+        vocs_view.setBackgroundColor(getAssociatedColor(vocs / 100.0f));
+        part_view.setBackgroundColor(getAssociatedColor(part / 100.0f));
     }
 }

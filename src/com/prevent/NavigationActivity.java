@@ -45,7 +45,7 @@ public class NavigationActivity extends Activity
                 objFragment = new DayFragment();
                 title = getString(R.string.title_day_section);
                 break;
-            case 3:
+            case 2:
                 objFragment = new NowFragment();
                 title = getString(R.string.title_website_section);
                 break;
