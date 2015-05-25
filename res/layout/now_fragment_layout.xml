@@ -10,6 +10,7 @@
         android:gravity="center"
         android:layout_weight="1"
         android:textSize="@dimen/font_size_in_menus"
+        android:textColor="@color/white"
         android:layout_margin="@dimen/margin_in_menus"
         android:id="@+id/particulateReading"
         android:onClick="onParticulateClick" />
@@ -19,6 +20,7 @@
         android:gravity="center"
         android:layout_weight="1"
         android:textSize="@dimen/font_size_in_menus"
+        android:textColor="@color/white"
         android:layout_margin="@dimen/margin_in_menus"
         android:id="@+id/vocReading"
         android:onClick="onVOCClick" />
@@ -28,6 +30,7 @@
         android:gravity="center"
         android:layout_weight="1"
         android:textSize="@dimen/font_size_in_menus"
+        android:textColor="@color/white"
         android:layout_margin="@dimen/margin_in_menus"
         android:id="@+id/tempReading"
         android:onClick="onTemperatureClick" />
@@ -37,6 +40,7 @@
         android:gravity="center"
         android:layout_weight="1"
         android:textSize="@dimen/font_size_in_menus"
+        android:textColor="@color/white"
         android:layout_margin="@dimen/margin_in_menus"
         android:id="@+id/humidityReading"
         android:onClick="onHumidityClick" />

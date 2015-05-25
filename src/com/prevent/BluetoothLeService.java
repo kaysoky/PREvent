@@ -14,6 +14,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
@@ -57,14 +58,14 @@ public class BluetoothLeService extends Service {
             
     // Data caching
     public final static String SHARED_PREFERENCES_NAME = "data_cache";
-    public final statis String RECENT_TEMP_DATA_KEY = "temperature";
-    public final statis String RECENT_HUMI_DATA_KEY = "humidity";
-    public final statis String RECENT_VOCS_DATA_KEY = "vocs";
-    public final statis String RECENT_PART_DATA_KEY = "particulates";
-    public final statis String CUMULATIVE_TEMP_DATA_KEY = "sum_temperature";
-    public final statis String CUMULATIVE_HUMI_DATA_KEY = "sum_humidity";
-    public final statis String CUMULATIVE_VOCS_DATA_KEY = "sum_vocs";
-    public final statis String CUMULATIVE_PART_DATA_KEY = "sum_particulates";
+    public final static String RECENT_TEMP_DATA_KEY = "temperature";
+    public final static String RECENT_HUMI_DATA_KEY = "humidity";
+    public final static String RECENT_VOCS_DATA_KEY = "vocs";
+    public final static String RECENT_PART_DATA_KEY = "particulates";
+    public final static String CUMULATIVE_TEMP_DATA_KEY = "sum_temperature";
+    public final static String CUMULATIVE_HUMI_DATA_KEY = "sum_humidity";
+    public final static String CUMULATIVE_VOCS_DATA_KEY = "sum_vocs";
+    public final static String CUMULATIVE_PART_DATA_KEY = "sum_particulates";
 
     // Characteristic UUID from which to read data
     private static final String DATA_CHARACTERISTIC_UUID = "21819ab0-c937-4188-b0db-b9621e1696cd";

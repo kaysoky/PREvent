@@ -5,8 +5,4 @@
     <color name="gray">#3F3F3F</color>
     <color name="light_gray">#8E948F</color>
 
-    <!-- Indicator colors: Lv1 OK to Lv10 Danger -->
-    <color name="green">#4AFF46</color>
-    <color name="red">#CF4339</color>
-
 </resources>

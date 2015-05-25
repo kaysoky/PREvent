@@ -2,6 +2,8 @@ package com.prevent;
 
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -39,11 +41,13 @@ public class NowFragment extends Fragment {
      * Fetches the latest sensor data and updates the text views
      */
     private void updateTextViews() {
-        SharedPreferences storage = getActivity().getSharedPreferences(BluetoothLeService.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-        float temp = storage.getFloat(RECENT_TEMP_DATA_KEY, 0.0f);
-        float humi = storage.getFloat(RECENT_HUMI_DATA_KEY, 0.0f);
-        float vocs = storage.getFloat(RECENT_VOCS_DATA_KEY, 0.0f);
-        float part = storage.getFloat(RECENT_PART_DATA_KEY, 0.0f);
+        SharedPreferences storage = getActivity()
+            .getSharedPreferences(BluetoothLeService.SHARED_PREFERENCES_NAME, 
+                Context.MODE_PRIVATE);
+        float temp = storage.getFloat(BluetoothLeService.RECENT_TEMP_DATA_KEY, 0.0f);
+        float humi = storage.getFloat(BluetoothLeService.RECENT_HUMI_DATA_KEY, 0.0f);
+        float vocs = storage.getFloat(BluetoothLeService.RECENT_VOCS_DATA_KEY, 0.0f);
+        float part = storage.getFloat(BluetoothLeService.RECENT_PART_DATA_KEY, 0.0f);
         temp_view.setText(getText(R.string.temp_text_label) + String.format("%.2f", temp) + "C");
         humi_view.setText(getText(R.string.humi_text_label) + String.format("%.2f", humi) + "%");
         vocs_view.setText(getText(R.string.vocs_text_label) + String.format("%.2f", vocs) + "%");
@@ -58,10 +62,10 @@ public class NowFragment extends Fragment {
      * Interpolates between green and red based on the given value (0-1)
      */
     private int getAssociatedColor(float value) {
-        int green = getColor(R.color.green);
-        int red = getColor(R.color.red);
         double lerp = Math.max(0.0, Math.min(1.0, value));
-        return (int) (red * lerp + green * (1.0 - lerp));
+        int green = ((int)(0xFF * lerp)) & 0xFF;
+        int red = ((int)(0xFF * (1.0 - lerp))) & 0xFF;
+        return (0xFF << 24) | green << 16 | red << 8;
     }
 
     @Nullable
