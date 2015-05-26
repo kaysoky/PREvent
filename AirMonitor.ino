@@ -17,6 +17,11 @@
 #define LED_PIN         13  // Arduino Uno LED pin
 
 #define TEMP_HUMD_ADDRESS           0x28
+#define FLASH_LENGTH                75
+#define VOC_WARNING                 0
+#define PM_WARNING                  1
+#define TEMP_WARNING                2
+#define HUMD_WARNING                3
 
 #define BLE_STATE_STANDBY           0
 #define BLE_STATE_SCANNING          1
@@ -73,20 +78,26 @@ void setup() {
     delay(100);             // Waits to make sure everything is powered up before sending or receiving data
     I2c.timeOut(500);       // Sets a timeout to ensure no locking up of sketch if I2C communication fails
     
-    #ifndef MOCK
-      // Enable VOC sensor (active high)
-      pinMode(PIN_VOC_ENABLE, OUTPUT);
-      digitalWrite(PIN_VOC_ENABLE, LOW);
-  
-      // Enable PM sensor (active low)
-      pinMode(PIN_PM_LED, OUTPUT);
-      digitalWrite(PIN_PM_LED, HIGH);
-    #endif
+    // Enable VOC sensor (active high)
+    pinMode(PIN_VOC_ENABLE, OUTPUT);
+    digitalWrite(PIN_VOC_ENABLE, LOW);
+
+    // Enable PM sensor (active low)
+    pinMode(PIN_PM_LED, OUTPUT);
+    digitalWrite(PIN_PM_LED, HIGH);
 
     // Enable button-based wakeup
     pinMode(PIN_WAKEUP, INPUT_PULLUP);
     pciSetup(PIN_WAKEUP);
-
+    
+    // Enable RGB "LED's (active low)
+    pinMode(PIN_R_LED, OUTPUT);
+    pinMode(PIN_G_LED, OUTPUT);
+    pinMode(PIN_B_LED, OUTPUT);
+    digitalWrite(PIN_R_LED, HIGH);
+    digitalWrite(PIN_G_LED, HIGH);
+    digitalWrite(PIN_B_LED, HIGH);
+    
     #ifdef DEBUG
         Serial.begin(38400);
         while (!Serial);
@@ -104,7 +115,18 @@ void pciSetup(byte pin)  {
 void loop() {
     if (digitalRead(PIN_WAKEUP)) {
         delay(100);
+        
+        #ifdef DEBUG
+          Serial.print("Entering Sleep...");
+          delay(100);
+        #endif
+        
         enterSleep();
+        
+        #ifdef DEBUG
+          Serial.println("woke up!");
+          delay(10);
+        #endif
     }
     
     // Keep polling for new data from BLE
@@ -121,6 +143,12 @@ void loop() {
       printVOC();
       printPM();
     #endif
+    
+    #ifdef DEBUG
+      Serial.println();
+    #endif
+
+    alert();
     
     formatBluetoothData();
 
@@ -203,16 +231,31 @@ void printVOC()  {
     #endif
 }
 
+//returns average of 15 samples -> 15 samples is the largest sample count for a 16 bit int
 void getPM() {
+    pm = 0;  
+  
+    for (int i = 0; i < 15; i++)  {
+      pm += testPM();
+    }
+    pm = pm / 15;
+}
+
+int testPM() {
+    int pmSample = 0;
+    
     digitalWrite(PIN_PM_LED, LOW);
     delayMicroseconds(280);
     
-    pm = analogRead(PIN_PM_MEASURE);
+    pmSample = analogRead(PIN_PM_MEASURE);
     delayMicroseconds(40);
     
     digitalWrite(PIN_PM_LED, HIGH);
     delayMicroseconds(9680);
+    
+    return pmSample;
 }
+
 
 void getVOC()  {
     digitalWrite(PIN_VOC_ENABLE, HIGH);
@@ -237,6 +280,47 @@ int getTempHumd()  {
 
     humd = ((data[3] & B00111111) << 8) + data[2];
     temp = (data[1] << 6) + (data[0] >> 2);
+}
+
+void alert()  {
+  if (temp > 6752)  {
+    warning(TEMP_WARNING);
+  }
+  
+  if (voc > 500)  {
+    warning(VOC_WARNING);
+  }
+  
+  
+  if (pm > 400)  {
+    warning(PM_WARNING);
+  }
+
+//  if (humd > 8192)  {  
+  if (humd > 14000)  {
+    warning(HUMD_WARNING);
+  }
+}
+
+void warning(int type)  {
+    if (type == VOC_WARNING)  {            //yellow
+        analogWrite(PIN_R_LED, 75);
+        analogWrite(PIN_G_LED, 195);
+    } else if (type == PM_WARNING)  {      //orange
+        analogWrite(PIN_R_LED, 75);
+        analogWrite(PIN_G_LED, 235);
+    } else if (type == TEMP_WARNING)  {    //red
+        digitalWrite(PIN_R_LED, LOW);
+    } else if (type == HUMD_WARNING)  {    //blue
+        digitalWrite(PIN_B_LED, LOW);
+    }
+    
+    delay(FLASH_LENGTH);
+    
+    digitalWrite(PIN_R_LED, HIGH);
+    digitalWrite(PIN_G_LED, HIGH);
+    digitalWrite(PIN_B_LED, HIGH);
+    delay (500);
 }
 
 void resetWatchdogTimer()  {
