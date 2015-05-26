@@ -41,7 +41,7 @@
       <div class="col-sm-8">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Pageviews by browser (past 24 hours)
+            Heat Map of Sensor Levels
           </div>
              <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
                    <div>
@@ -60,9 +60,9 @@
       <div class="col-sm-4">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Temperature and Humidity Levels
+            Temperature Levels
           </div>
-          <canvas class='chart-stage' id="tempHumiChart" width="800" height="500"></canvas>
+          <canvas class='chart-stage' id="tempChart" width="800" height="500"></canvas>
           <div class="chart-notes">
             Timeline
           </div>
@@ -79,7 +79,7 @@
           <div class="chart-title">
             Sensor Levels Hourly
           </div>
-        	<canvas class="chart-stage" id="tempHumiHour" width="500" height="300"></canvas>
+        	<canvas class="chart-stage" id="hourChart" width="500" height="300"></canvas>
           <div class="chart-notes">
             X-axis Displays Hourly Intervals
           </div>
@@ -91,9 +91,9 @@
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Particulate Matter and Volatile Organic Compound Chart
+            Humidity Chart
           </div>
-        	<canvas class="chart-stage" id="partVocsChart" width="500" height="300"></canvas>
+        	<canvas class="chart-stage" id="humiChart" width="500" height="500"></canvas>
           <div class="chart-notes">
             Timeline
           </div>
@@ -112,15 +112,50 @@
         </div>
       </div>
 
-    <hr>
-
-    <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
+	<div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Cell Title
+          </div>
+			<canvas class="chart-stage" id="partChart" width="500" height="500"></canvas>
+          </div>
+          <div class="chart-notes">
+            Notes about this chart
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Cell Title
+          </div>
+			<canvas class="chart-stage" id="vocsChart" width="500" height="500"></canvas>
+          </div>
+          <div class="chart-notes">
+            Notes about this chart
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Cell Title
+          </div>
+          <div class="chart-stage">
+            <img data-src="holder.js/100%x120/white">
+          </div>
+          <div class="chart-notes">
+            Notes about this chart
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div>
-                          <h2>Average Temperature:</h2> <h2 id="tempMean"></h2>
-                          <h2>Average Humidity:</h2> <h2 id="humiMean"></h2>
-                          <h2>Average Particulate:</h2> <h2 id="partMean"></h2>
-                          <h2>Average Volatile Organic:</h2> <h2 id="vocsMean"></h2>
+     <h2>Average Temperature:</h2> <h2 id="tempMean"></h2>
+     <h2>Average Humidity:</h2> <h2 id="humiMean"></h2>
+     <h2>Average Particulate:</h2> <h2 id="partMean"></h2>
+     <h2>Average Volatile Organic:</h2> <h2 id="vocsMean"></h2>
 
 </body>
 </html>
@@ -145,16 +180,16 @@
             var humi = [];
             var part = [];
             var vocs = [];
-            var tempChart = [];
-            var humiChart = [];
-            var partChart = [];
-            var vocsChart = [];
+            var testChart = [];
+            var humiTestChart = [];
+            var partTestChart = [];
+            var vocsTestChart = [];
             var dateChart = [];
+            var fakeLabels = [];
             var tempByHour = {};
             var humiByHour = {};
             var partByHour = {};
             var vocsByHour = {};
-            var tempBy
             function fetchData() {
             	$.get('/data/').done(function(data) {
 	                for (var index in data) {
@@ -170,14 +205,15 @@
 	                    vocsByHour[hour] = vocsByHour[hour]||[];
 	                    vocsByHour[hour].push(data[index].gas);
 	                    dateChart.push(date);
-	                    tempChart.push(Math.floor(data[index].temperature * 100));
-	                    humiChart.push(Math.floor(data[index].humidity * 100));
-	                    partChart.push(Math.floor(data[index].particulate * 100));
-	                    vocsChart.push(Math.floor(data[index].gas * 100));
+	                    fakeLabels.push('');
 	                    temp.push({ location: coord, weight: data[index].temperature });
 	                    humi.push({ location: coord, weight: data[index].humidity });
 	                    part.push({ location: coord, weight: data[index].particulate });
 	                    vocs.push({ location: coord, weight: data[index].gas });
+	                    testChart.push(data[index].temperature);
+	                    humiTestChart.push(Math.floor(data[index].humidity * 100));
+	                    partTestChart.push(Math.floor(data[index].particulate * 100));
+	                    vocsTestChart.push(Math.floor(data[index].gas * 100));
 	                }
 	                averages();
 	                initialize();
@@ -186,15 +222,22 @@
 	                humiHour = group(humiByHour);
 	                partHour = group(partByHour);
 	                vocsHour = group(vocsByHour);
-	                data1 = makeGraphs(tempChart, humiChart, dateChart);
-	                data2 = makeGraphs(partChart, vocsChart, dateChart);
-	                data3 = makeFourGraphs(tempHour, humiHour, partHour, vocsHour, hourTicks);
-	                var etx = document.getElementById("tempHumiChart").getContext("2d");
-	                var ctx = document.getElementById('partVocsChart').getContext("2d");
-	                var stx = document.getElementById('tempHumiHour').getContext("2d");
-	                var tempHumiHour = new Chart(stx).Line(data3)
-	                var tempHumiChart = new Chart(etx).Line(data2, {showXLabels: 10});
-					var partVocsChart = new Chart(ctx).Line(data1);	
+
+	                data1 = makeGraphs(testChart, fakeLabels);
+	                data2 = makeGraphs(humiTestChart, fakeLabels);
+	                data3 = makeGraphs(partTestChart, fakeLabels);
+	                data4 = makeGraphs(vocsTestChart, fakeLabels);
+	                data5 = makeFourGraphs(tempHour, humiHour, partHour, vocsHour, hourTicks);
+	                var tC = document.getElementById('tempChart').getContext("2d");
+	                var hC = document.getElementById('humiChart').getContext("2d");
+	                var pC = document.getElementById('partChart').getContext("2d");
+	                var vC = document.getElementById('vocsChart').getContext("2d");
+	                var tHH = document.getElementById('hourChart').getContext("2d");
+	                var tempChartz = new Chart(tC).Line(data1)
+	                var humiChartz = new Chart(hC).Line(data2, {showXLabels: 10});
+	                var partChartz = new Chart(pC).Line(data3)
+	                var vocsChartz = new Chart(vC).Line(data4)
+					var hourChartz = new Chart(tHH).Line(data5);	
 	            });
 	        }
 
@@ -310,12 +353,12 @@
 
 			google.maps.event.addDomListener(window, 'load', fetchData);
 
-			function makeGraphs(data1, data2, dateChart) {
+			function makeGraphs(data1, dateChart, name) {
 				var data = {
-	    			labels: dateChart,
+					labels: dateChart,
 				    datasets: [
 				        {
-				            label: "Temperature",
+				            label: name,
 				            fillColor: "rgba(220,220,220,0.2)",
 				            strokeColor: "rgba(220,220,220,1)",
 				            pointColor: "rgba(220,220,220,1)",
@@ -323,18 +366,7 @@
 				            pointHighlightFill: "#fff",
 				            pointHighlightStroke: "rgba(220,220,220,1)",
 				            data: data1
-				        },
-				        {
-				        	label: "",
-				            fillColor: "rgba(151,187,205,0.2)",
-				            strokeColor: "rgba(151,187,205,1)",
-				            pointColor: "rgba(151,187,205,1)",
-				            pointStrokeColor: "#fff",
-				            pointHighlightFill: "#fff",
-				            pointHighlightStroke: "rgba(151,187,205,1)",
-				            data: data2
 				        }
-
 				    ]
 				}	
 				return data		    
