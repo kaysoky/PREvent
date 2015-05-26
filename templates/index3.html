@@ -32,103 +32,61 @@
             </div>
         {% endblock %}
         
-<link rel="stylesheet" type="text/css" href="static/bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" href="static/keen-dashboards.css" />
-<body class="application">
-  <div class="container-fluid">
-    <div class="row">
 
-      <div class="col-sm-8">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Pageviews by browser (past 24 hours)
-          </div>
-             <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
-                   <div>
+        <div class="container">
+            <ul class="breadcrumb"></ul>
+            <div id="content">
+                <div class="content-main">
+                    <div class="page-header">
+                        <h1>Map UI (in development)</h1>
+                    </div>
+                    <div id="map-canvas" style="height: 500px"></div>
+                    <div>
                         <div id="panel">
                           <button onclick="toggleTempMap()">Temperature</button>
                           <button onclick="toggleHumiMap()">Humidity</button>
                           <button onclick="toggleVocsMap()">Volatile Organic</button>
                           <button onclick="togglePartMap()">Particle 2.5</button>
-                        </div>
-                    </div>
-          <div class="chart-notes">
-            This is a sample text region to describe this chart.
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Temperature and Humidity Levels
-          </div>
-          <canvas class='chart-stage' id="tempHumiChart" width="800" height="500"></canvas>
-          <div class="chart-notes">
-            Timeline
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Sensor Levels Hourly
-          </div>
-        	<canvas class="chart-stage" id="tempHumiHour" width="500" height="300"></canvas>
-          <div class="chart-notes">
-            X-axis Displays Hourly Intervals
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Particulate Matter and Volatile Organic Compound Chart
-          </div>
-        	<canvas class="chart-stage" id="partVocsChart" width="500" height="300"></canvas>
-          <div class="chart-notes">
-            Timeline
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Average Values For Each Sensor
-          </div>
-			<canvas class="chart-stage" id="barChart" width="500" height="300"></canvas>
-          <div class="chart-notes">
-            Temperature, Humidity, PM, VOC
-          </div>
-        </div>
-      </div>
-
-    <hr>
-
-    <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
-
-  </div>
                           <h2>Average Temperature:</h2> <h2 id="tempMean"></h2>
                           <h2>Average Humidity:</h2> <h2 id="humiMean"></h2>
                           <h2>Average Particulate:</h2> <h2 id="partMean"></h2>
                           <h2>Average Volatile Organic:</h2> <h2 id="vocsMean"></h2>
-
-</body>
-</html>
-
+                          <canvas id="barChart" width="1000" height="500"></canvas>
+                        </div>
+                    </div>
+                    <style>
+					#chart_container {
+					        position: relative;
+					        font-family: Arial, Helvetica, sans-serif;
+					}
+					#chart {
+					        position: relative;
+					        left: 40px;
+					}
+					.rickshaw_graph .y_ticks {
+					        left: 0;
+					}
+					#y_axis {
+					        position: absolute;
+					        top: 0;
+					        bottom: 0;
+					        width: 40px;
+					}
+					</style>
+					<div id="chart_container">
+					        <div id="y_axis"></div>
+					        <div id="chart"></div>
+					</div>
+					<canvas id="tempHumiChart" width="1000" height="750"></canvas>
+					<canvas id="partVocsChart" width="1000" height="750"></canvas>
+					<canvas id="tempHumiHour" width="1000" height="500"></canvas>
+                </div>
+            <div>
+        <div>
+    </div><!-- ./wrapper -->
 
     {% block script %}
-		<script src="{% static 'meta.js' %}"></script>
-		<script src="{% static 'keen.min.js' %}"></script>
+
         <script src="{% static 'rest_framework/js/jquery-1.8.1-min.js' %}"></script>
         <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
         <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
@@ -154,7 +112,6 @@
             var humiByHour = {};
             var partByHour = {};
             var vocsByHour = {};
-            var tempBy
             function fetchData() {
             	$.get('/data/').done(function(data) {
 	                for (var index in data) {
@@ -189,11 +146,11 @@
 	                data1 = makeGraphs(tempChart, humiChart, dateChart);
 	                data2 = makeGraphs(partChart, vocsChart, dateChart);
 	                data3 = makeFourGraphs(tempHour, humiHour, partHour, vocsHour, hourTicks);
-	                var etx = document.getElementById("tempHumiChart").getContext("2d");
-	                var ctx = document.getElementById('partVocsChart').getContext("2d");
+	                var ctx = document.getElementById("tempHumiChart").getContext("2d");
+	                var etx = document.getElementById('partVocsChart').getContext("2d");
 	                var stx = document.getElementById('tempHumiHour').getContext("2d");
 	                var tempHumiHour = new Chart(stx).Line(data3)
-	                var tempHumiChart = new Chart(etx).Line(data2, {showXLabels: 10});
+	                var tempHumiChart = new Chart(etx).Line(data2);
 					var partVocsChart = new Chart(ctx).Line(data1);	
 	            });
 	        }
