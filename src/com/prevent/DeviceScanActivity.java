@@ -299,8 +299,9 @@ public class DeviceScanActivity extends ListActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (device.getName().contains(PERIPHERAL_NAME)) {
-                        Log.d(TAG, "Device (" + device.getName() + ") added to view");
+                    String deviceName = device.getName();
+                    if (deviceName != null && deviceName.contains(PERIPHERAL_NAME)) {
+                        Log.d(TAG, "Device (" + deviceName + ") added to view");
                         mLeDeviceListAdapter.addDevice(device);
                         mLeDeviceListAdapter.notifyDataSetChanged();
                     } else {

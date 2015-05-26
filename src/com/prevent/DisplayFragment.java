@@ -13,15 +13,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.Math;
+import java.lang.CharSequence;
 
 /**
  * Shows only the most recent sensor reading
  */
 public abstract class DisplayFragment extends Fragment {
-    protected TextView temp_view;
-    protected TextView humi_view;
-    protected TextView vocs_view;
-    protected TextView part_view;
+    private TextView temp_view;
+    private TextView humi_view;
+    private TextView vocs_view;
+    private TextView part_view;
+
+    protected float temp;
+    protected float humi;
+    protected float vocs;
+    protected float part;
 
     /**
      * Receives data from the BluetoothLeService
@@ -35,16 +41,29 @@ public abstract class DisplayFragment extends Fragment {
             }
         }
     };
-    
+
     /**
-     * Should fetch the sensor data and update the text views
+     * Should fetch the sensor data into local variables
      */
-    protected abstract void updateTextViews();
-    
+    protected abstract void fetchLatestData();
+
+    private void updateTextViews() {
+        fetchLatestData();
+
+        temp_view.setText(getText(R.string.temp_text_label) + String.format("%.2f", temp) + "C");
+        humi_view.setText(getText(R.string.humi_text_label) + String.format("%.2f", humi) + "%");
+        vocs_view.setText(getText(R.string.vocs_text_label) + String.format("%.2f", vocs) + "%");
+        part_view.setText(getText(R.string.part_text_label) + String.format("%.2f", part) + "%");
+        temp_view.setBackgroundColor(getAssociatedColor(Math.abs(temp - 20) / 35.0f));
+        humi_view.setBackgroundColor(getAssociatedColor(humi / 100.0f));
+        vocs_view.setBackgroundColor(getAssociatedColor(vocs / 100.0f));
+        part_view.setBackgroundColor(getAssociatedColor(part / 100.0f));
+    }
+
     /**
      * Interpolates between green and red based on the given value (0-1)
      */
-    public int getAssociatedColor(float value) {
+    private int getAssociatedColor(float value) {
         double lerp = Math.max(0.0, Math.min(1.0, value));
         int green = ((int)(0xFF * lerp)) & 0xFF;
         int red = ((int)(0xFF * (1.0 - lerp))) & 0xFF;
@@ -82,18 +101,39 @@ public abstract class DisplayFragment extends Fragment {
     /***** Click handlers *****/
 
     public void onTemperatureClick(View view) {
-        // Toast.makeText(getActivity(), "Summer is coming, enjoy", Toast.LENGTH_SHORT).show();
+        // We won't comment on temperature
+        // That's not the point of this product
     }
 
     public void onHumidityClick(View view) {
-        // Toast.makeText(getActivity(), "Humidity level is relatively low, please drink more water and keep hydrated", Toast.LENGTH_SHORT).show();
+        // Just advise the user to keep the sensors dry
+        if (humi > 50) {
+            Toast.makeText(getActivity(), getText(R.string.humidity_high_toast),
+                Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onVOCClick(View view) {
-        // Toast.makeText(getActivity(), "No hazardous gases detected", Toast.LENGTH_SHORT).show();
+        CharSequence message = null;
+        if (vocs < 20) {
+            message = getText(R.string.vocs_low_toast);
+        } else if (vocs < 60) {
+            message = getText(R.string.vocs_medium_toast);
+        } else {
+            message = getText(R.string.vocs_high_toast);
+        }
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     public void onParticulateClick(View view) {
-        // Toast.makeText(getActivity(), "Particulate density is high, please consider changing your area of activity", Toast.LENGTH_SHORT).show();
+        CharSequence message = null;
+        if (part < 20) {
+            message = getText(R.string.pm_low_toast);
+        } else if (part < 60) {
+            message = getText(R.string.pm_medium_toast);
+        } else {
+            message = getText(R.string.pm_high_toast);
+        }
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 }

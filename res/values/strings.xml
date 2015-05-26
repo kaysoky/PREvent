@@ -38,4 +38,13 @@
     <string name="part_text_label">Particulates: </string>
     <string name="gps_fail_title">Location services required</string>
     <string name="gps_fail_message">Please enable your location services.</string>
+    
+    <!-- Sensor toast messages -->
+    <string name="humidity_high_toast">Please keep the sensors dry</string>
+    <string name="vocs_low_toast">Volatile organic compounds at normal levels</string>
+    <string name="vocs_medium_toast">Volatile organic compounds at abnormal levels.  If you don\'t smell anything, you may be inhaling something unpleasant</string>
+    <string name="vocs_high_toast">Volatile organic compounds at high concentration.  Please check your surroundings and relocate if possible.</string>
+    <string name="pm_low_toast">Airborne particulates at normal levels</string>
+    <string name="pm_medium_toast">Airborne particulates at elevated levels.  A gas mask is advised</string>
+    <string name="pm_high_toast">Airborne particulates at dangerous levels.  Please check your surroundings and relocate if possible.</string>
 </resources>

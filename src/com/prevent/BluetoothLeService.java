@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Service for managing connection and data communication
@@ -54,9 +55,13 @@ public class BluetoothLeService extends Service implements LocationListener {
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
 
-    // Recurring event that polls for new data from the device
+    // Recurring event reconnects to the device if necessary
+    // Also deals with the data backlog
     private static Timer timer = new Timer();
-    private static byte[] previousData = new byte[]{};
+    
+    // Data buffer
+    private byte[] previousData = new byte[]{};
+    private ConcurrentLinkedQueue<String> dataBacklog = new ConcurrentLinkedQueue<String>();
 
     // Characteristic to read data from
     private BluetoothGattCharacteristic mCharacteristic;
@@ -187,7 +192,7 @@ public class BluetoothLeService extends Service implements LocationListener {
             //   14-bits Humidity
             //   10-bits VOC
             //   10-bits PM
-            int temp = extras[0] << 8 | (extras[1] & 0xFC) >> 2;
+            int temp = extras[0] << 6 | (extras[1] & 0xFC) >> 2;
             int humi = (extras[1] & 0x3) << 12 | extras[2] << 4 | (extras[3] & 0xF0) >> 4;
             int vocs = (extras[3] & 0xF) << 6 | (extras[4] & 0xFC) >> 2;
             int part = (extras[4] & 0x3) << 8 | extras[5];
@@ -244,27 +249,13 @@ public class BluetoothLeService extends Service implements LocationListener {
                     json.put("humidity", f_humi);
                     json.put("gas", f_vocs);
                     json.put("particulate", f_part);
-
-                    // Format the HTTP POST
-                    HttpClient httpclient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost("http://attu.cs.washington.edu:8000/data/");
-                    httpPost.setEntity(new StringEntity(json.toString()));
-                    httpPost.setHeader("Accept", "application/json");
-                    httpPost.setHeader("Content-type", "application/json");
-                    httpPost.setHeader("Authorization", 
-                        getSharedPreferences(LoginActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-                            .getString(LoginActivity.AUTHENTICATION_PREFERENCE_KEY, ""));
-
-                    // Post and check result
-                    HttpResponse httpResponse = httpclient.execute(httpPost);
-                    if (httpResponse.getStatusLine().getStatusCode() != 201) {
-                        Log.e(TAG, "Post to server failed with status code: " + httpResponse.getStatusLine().getStatusCode());
-                    } else {
-                        Log.v(TAG, "Posted data to server");
+                    String jsonStr = json.toString();
+                    
+                    // Post the data
+                    // Save the data in memory if the post fails
+                    if (!postDataToServer(jsonStr)) {
+                        dataBacklog.add(jsonStr);
                     }
-
-                } catch (IOException e) {
-                    Log.w(TAG, "Error while saving data to server", e);
                 } catch (JSONException e) {
                     Log.w(TAG, "Error while saving data to server", e);
                 }
@@ -272,6 +263,35 @@ public class BluetoothLeService extends Service implements LocationListener {
                 Log.w(TAG, "No location data available, cannot post to server");
             }
         }
+    }
+    
+    /**
+     * Performs an HTTP POST to the server, with the given json string
+     */
+    private boolean postDataToServer(String json) {
+        try {
+            // Format the HTTP POST
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httpPost = new HttpPost("http://attu.cs.washington.edu:8000/data/");
+            httpPost.setEntity(new StringEntity(json));
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+            httpPost.setHeader("Authorization", 
+                getSharedPreferences(LoginActivity.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+                    .getString(LoginActivity.AUTHENTICATION_PREFERENCE_KEY, ""));
+
+            // Post and check result
+            HttpResponse httpResponse = httpclient.execute(httpPost);
+            if (httpResponse.getStatusLine().getStatusCode() == 201) {
+                Log.v(TAG, "Posted data to server");
+                return true;
+            } else {
+                Log.e(TAG, "Post to server failed with status code: " + httpResponse.getStatusLine().getStatusCode());
+            }
+        } catch (IOException e) {
+            Log.w(TAG, "Error while saving data to server", e);
+        }
+        return false;
     }
 
     public class LocalBinder extends Binder {
@@ -432,6 +452,15 @@ public class BluetoothLeService extends Service implements LocationListener {
                     connect(mBluetoothDeviceAddress);
                 } else if (mConnectionState == STATE_CONNECTED) {
                     mBluetoothGatt.readCharacteristic(mCharacteristic);
+                }
+            }
+            
+            // Check for data that hasn't been posted yet
+            // And post it
+            String json = dataBacklog.poll();
+            if (json != null) {
+                if (!postDataToServer(json)) {
+                    dataBacklog.add(json);
                 }
             }
         }
