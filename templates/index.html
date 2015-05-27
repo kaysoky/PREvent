@@ -59,13 +59,12 @@
       </div>
       <div class="col-sm-4">
         <div class="chart-wrapper">
-          <div class="chart-title">
-            Temperature Levels
+        	<div class="chart-title">
+            Average Values For Each Sensor
           </div>
-          <canvas class='chart-stage' id="tempChart" width="800" height="500"></canvas>
+			<canvas class="chart-stage" id="barChart" width="500" height="300"></canvas>
           <div class="chart-notes">
-            Timeline
-          </div>
+            Temperature, Humidity, PM, VOC
         </div>
       </div>
 
@@ -91,7 +90,7 @@
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Humidity Chart
+            Humidity Levels
           </div>
         	<canvas class="chart-stage" id="humiChart" width="500" height="500"></canvas>
           <div class="chart-notes">
@@ -103,11 +102,12 @@
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Average Values For Each Sensor
+            Temperature Levels
           </div>
-			<canvas class="chart-stage" id="barChart" width="500" height="300"></canvas>
+          <canvas class='chart-stage' id="tempChart" width="500" height="500"></canvas>
           <div class="chart-notes">
-            Temperature, Humidity, PM, VOC
+            Timeline
+          </div>
           </div>
         </div>
       </div>
@@ -115,24 +115,24 @@
 	<div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Cell Title
+            Particulate Matter 2.5 Levels
           </div>
 			<canvas class="chart-stage" id="partChart" width="500" height="500"></canvas>
           </div>
           <div class="chart-notes">
-            Notes about this chart
+            Detects Smoke, Exhaust, and most air pollution
           </div>
         </div>
       </div>
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Cell Title
+            Volatile Organic Compound Levels
           </div>
 			<canvas class="chart-stage" id="vocsChart" width="500" height="500"></canvas>
           </div>
           <div class="chart-notes">
-            Notes about this chart
+            X-axis represents date and time
           </div>
         </div>
       </div>
@@ -152,10 +152,6 @@
     </div>
 
   </div>
-     <h2>Average Temperature:</h2> <h2 id="tempMean"></h2>
-     <h2>Average Humidity:</h2> <h2 id="humiMean"></h2>
-     <h2>Average Particulate:</h2> <h2 id="partMean"></h2>
-     <h2>Average Volatile Organic:</h2> <h2 id="vocsMean"></h2>
 
 </body>
 </html>
@@ -168,13 +164,15 @@
         <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
         <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
         <script src="{% static 'rest_framework/js/default.js' %}"></script>
-        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script src="{% static 'Chart.min.js' %}"></script>
         </script>
         <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
-        </script>
+            src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
         <script>
+
+        //TODO: MOVING AVERAGE
+        //TODO: SORT DATA
+        //TODO: Interval Date
             // Fetch data from the server
             var temp = [];
             var humi = [];
@@ -205,15 +203,15 @@
 	                    vocsByHour[hour] = vocsByHour[hour]||[];
 	                    vocsByHour[hour].push(data[index].gas);
 	                    dateChart.push(date);
-	                    fakeLabels.push('');
+	                    fakeLabels.push(intervalDate(date, index, 25));
 	                    temp.push({ location: coord, weight: data[index].temperature });
 	                    humi.push({ location: coord, weight: data[index].humidity });
 	                    part.push({ location: coord, weight: data[index].particulate });
 	                    vocs.push({ location: coord, weight: data[index].gas });
 	                    testChart.push(data[index].temperature);
-	                    humiTestChart.push(Math.floor(data[index].humidity * 100));
-	                    partTestChart.push(Math.floor(data[index].particulate * 100));
-	                    vocsTestChart.push(Math.floor(data[index].gas * 100));
+	                    humiTestChart.push(Math.floor(data[index].humidity));
+	                    partTestChart.push(Math.floor(data[index].particulate));
+	                    vocsTestChart.push(Math.floor(data[index].gas));
 	                }
 	                averages();
 	                initialize();
@@ -239,6 +237,14 @@
 	                var vocsChartz = new Chart(vC).Line(data4)
 					var hourChartz = new Chart(tHH).Line(data5);	
 	            });
+	        }
+
+	        function intervalDate(date, index, num) {
+	        	if (index % num == 0) {
+	        		return date
+	        	} else {
+	        		return ''
+	        	}
 	        }
 
 			function averages()	{
@@ -271,10 +277,6 @@
 				};
 				var ctx = document.getElementById("barChart").getContext("2d");
 				var myBarChart = new Chart(ctx).Bar(data);
-				document.getElementById("tempMean").innerHTML = tempMean;
-				document.getElementById("humiMean").innerHTML = humiMean;
-				document.getElementById("partMean").innerHTML = partMean;
-				document.getElementById("vocsMean").innerHTML = vocsMean;
 			};	        
 
 			function group(dict) {
@@ -359,9 +361,9 @@
 				    datasets: [
 				        {
 				            label: name,
-				            fillColor: "rgba(220,220,220,0.2)",
-				            strokeColor: "rgba(220,220,220,1)",
-				            pointColor: "rgba(220,220,220,1)",
+				            fillColor: "rgba(220,220,220,0.4)",
+				            strokeColor: "rgba(220,100,120,50)",
+				            pointColor: "rgba(90,80,220,40)",
 				            pointStrokeColor: "#fff",
 				            pointHighlightFill: "#fff",
 				            pointHighlightStroke: "rgba(220,220,220,1)",
