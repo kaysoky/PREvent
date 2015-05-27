@@ -37,120 +37,107 @@
 <body class="application">
   <div class="container-fluid">
     <div class="row">
-
-      <div class="col-sm-8">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Heat Map of Sensor Levels
-          </div>
-             <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
-                   <div>
-                        <div id="panel">
-                          <button onclick="toggleTempMap()">Temperature</button>
-                          <button onclick="toggleHumiMap()">Humidity</button>
-                          <button onclick="toggleVocsMap()">Volatile Organic</button>
-                          <button onclick="togglePartMap()">Particle 2.5</button>
-                        </div>
+		<div class="col-sm-8">
+        	<div class="chart-wrapper">
+          		<div class="chart-title">
+           			Heat Map of Sensor Levels
+          		</div>
+             	<div class='chart-stage' id="map-canvas" style="height: 400px"></div>
+                <div>
+                	<div id="panel">
+                    	<button onclick="toggleTempMap()">Temperature</button>
+                        <button onclick="toggleHumiMap()">Humidity</button>
+                        <button onclick="toggleVocsMap()">Volatile Organic</button>
+                        <button onclick="togglePartMap()">Particle 2.5</button>
                     </div>
-          <div class="chart-notes">
-            This is a sample text region to describe this chart.
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div class="chart-wrapper">
-        	<div class="chart-title">
-            Average Values For Each Sensor
-          </div>
-			<canvas class="chart-stage" id="barChart" width="500" height="300"></canvas>
-          <div class="chart-notes">
-            Temperature, Humidity, PM, VOC
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Sensor Levels Hourly
-          </div>
-        	<canvas class="chart-stage" id="hourChart" width="500" height="300"></canvas>
-          <div class="chart-notes">
-            X-axis Displays Hourly Intervals
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Humidity Levels
-          </div>
-        	<canvas class="chart-stage" id="humiChart" width="500" height="500"></canvas>
-          <div class="chart-notes">
-            Timeline
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Temperature Levels
-          </div>
-          <canvas class='chart-stage' id="tempChart" width="500" height="500"></canvas>
-          <div class="chart-notes">
-            Timeline
-          </div>
-          </div>
-        </div>
-      </div>
-
-	<div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Particulate Matter 2.5 Levels
-          </div>
-			<canvas class="chart-stage" id="partChart" width="500" height="500"></canvas>
-          </div>
-          <div class="chart-notes">
-            Detects Smoke, Exhaust, and most air pollution
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Volatile Organic Compound Levels
-          </div>
-			<canvas class="chart-stage" id="vocsChart" width="500" height="500"></canvas>
-          </div>
-          <div class="chart-notes">
-            X-axis represents date and time
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6 col-md-4">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Cell Title
-          </div>
-          <div class="chart-stage">
-            <img data-src="holder.js/100%x120/white">
-          </div>
-          <div class="chart-notes">
-            Notes about this chart
-          </div>
-        </div>
-      </div>
-    </div>
-
+                </div>
+		        <div class="chart-notes">
+		            This is a sample text region to describe this chart.
+		        </div>
+		    </div>
+		</div>
+		<div class="col-sm-4">
+		    <div class="chart-wrapper">
+		        <div class="chart-title">
+		            Average Values For Each Sensor
+		        </div>
+				<canvas class="chart-stage" id="barChart" width="500" height="400"></canvas>
+		        <div class="chart-notes">
+		            Temperature, Humidity, PM, VOC
+		        </div>
+		    </div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 col-md-4">
+        		<div class="chart-wrapper">
+          			<div class="chart-title">
+            			Sensor Levels Hourly
+          			</div>
+        			<canvas class="chart-stage" id="hourChart" width="500" height="500"></canvas>
+          			<div class="chart-notes">
+            			X-axis Displays Hourly Intervals
+          			</div>
+        		</div>
+      		</div>
+			<div class="col-sm-6 col-md-4">
+		        <div class="chart-wrapper">
+		          	<div class="chart-title">
+		           		Humidity Levels
+		          	</div>
+		        	<canvas class="chart-stage" id="humiChart" width="500" height="500"></canvas>
+		          	<div class="chart-notes">
+		            	Timeline
+		          	</div>
+		        </div>
+	      	</div>
+			<div class="col-sm-6 col-md-4">
+		        <div class="chart-wrapper">
+			        <div class="chart-title">
+			            Temperature Levels
+			        </div>
+		          	<canvas class='chart-stage' id="tempChart" width="500" height="500"></canvas>
+		          	<div class="chart-notes">
+		            	Timeline
+		          	</div>
+		        </div>
+		    </div>
+			<div class="col-sm-6 col-md-4">
+        		<div class="chart-wrapper">
+          			<div class="chart-title">
+            			Particulate Matter 2.5 Levels
+          			</div>
+					<canvas class="chart-stage" id="partChart" width="500" height="500"></canvas>
+          		</div>
+          		<div class="chart-notes">
+            		Detects Smoke, Exhaust, and most air pollution
+          		</div>
+        	</div>
+	      	<div class="col-sm-6 col-md-4">
+	        	<div class="chart-wrapper">
+	          		<div class="chart-title">
+	            		Volatile Organic Compound Levels
+	          		</div>
+					<canvas class="chart-stage" id="vocsChart" width="500" height="500"></canvas>
+	          	</div>
+	          	<div class="chart-notes">
+	            	X-axis represents date and time
+	          	</div>
+	        </div>
+      		<div class="col-sm-6 col-md-4">
+        		<div class="chart-wrapper">
+          			<div class="chart-title">
+            			Cell Title
+          			</div>
+         			<div class="chart-stage">
+            			<img data-src="holder.js/100%x120/white">
+         			 </div>
+          			<div class="chart-notes">
+            			Notes about this chart
+          			</div>
+        		</div>
+      		</div>
+    	</div>
+  	</div>
   </div>
 
 </body>
@@ -172,7 +159,7 @@
 
         //TODO: MOVING AVERAGE
         //TODO: SORT DATA
-        //TODO: Interval Date
+        //TODO: FILTER OUT MAP DATA SO IT DOESN"T LOOK CONCENTRATED IF YOU"RE SITTING SOMEWHERE ALL DAY
             // Fetch data from the server
             var temp = [];
             var humi = [];
@@ -209,9 +196,9 @@
 	                    part.push({ location: coord, weight: data[index].particulate });
 	                    vocs.push({ location: coord, weight: data[index].gas });
 	                    testChart.push(data[index].temperature);
-	                    humiTestChart.push(Math.floor(data[index].humidity));
-	                    partTestChart.push(Math.floor(data[index].particulate));
-	                    vocsTestChart.push(Math.floor(data[index].gas));
+	                    humiTestChart.push(data[index].humidity);
+	                    partTestChart.push(data[index].particulate);
+	                    vocsTestChart.push(data[index].gas);
 	                }
 	                averages();
 	                initialize();
@@ -241,7 +228,11 @@
 
 	        function intervalDate(date, index, num) {
 	        	if (index % num == 0) {
-	        		return date
+	        		var hour = date.getHours();
+	        		var minute = date.getMinutes();
+	        		var sec = date.getSeconds();
+	        		var d = hour + ':' + minute + ':' + sec;
+	        		return d
 	        	} else {
 	        		return ''
 	        	}
