@@ -14,6 +14,9 @@ from serializers import DatapointSerializer
 def index(request):
     return render(request, 'index.html')
 
+def graphs(request):
+    return render(request, 'graphs.html')
+
 class AuthCheck(generics.ListAPIView):
     """ Helper (hack) for phone companion app to check user's credentials """
     permission_classes = (IsAuthenticated,)

@@ -6,6 +6,7 @@ from datadump import views
 
 urlpatterns = [
     url(r'^$', views.index),
+    url(r'^graphs/$', views.graphs),
     url(r'^', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^register/$', RegistrationView.as_view(), name='registration_register'),
     url(r'^register/complete/$', views.index, name='registration_complete'),

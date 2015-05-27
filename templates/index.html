@@ -4,7 +4,7 @@
 {% load rest_framework %}
 
 {% block dashboard_theme %}
-    <link rel="stylesheet" type="text/css" href="static/keen-dashboards.css" />
+    <link rel="stylesheet" type="text/css" href="{% static 'keen-dashboards.css' %}" />
 {% endblock %}
 
 {% block body %}
@@ -16,11 +16,14 @@
                     <span>
                         {% block branding %}
                             <a class='navbar-brand' rel="nofollow" href='/'>
-                                PREvent
+                                AtmoSPHERE
                             </a>
                         {% endblock %}
                     </span>
                     <ul class="nav navbar-nav pull-right">
+                        {% block other_tabs %}
+                            <li><a href="graphs/">Data Graphs</a></li>
+                        {% endblock %}
                         {% block userlinks %}
                             {% if user.is_authenticated %}
                                 {% optional_logout request user %}
@@ -33,84 +36,46 @@
                 </div>
             </div>
         {% endblock %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-8">
-                <div class="chart-wrapper">
-                    <div class="chart-title">
-                        Heat Map of Sensor Levels
-                    </div>
-                    <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
-                    <div id="panel">
-                        <button onclick="toggleTempMap()">Temperature</button>
-                        <button onclick="toggleHumiMap()">Humidity</button>
-                        <button onclick="toggleVocsMap()">Volatile Organic</button>
-                        <button onclick="togglePartMap()">Particle 2.5</button>
-                    </div>
-                    <div class="chart-notes">
-                    This is a sample text region to describe this chart.
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="chart-wrapper">
-                    <div class="chart-title">Average Values For Each Sensor</div>
-                    <canvas class="chart-stage" id="barChart" width="500" height="400"></canvas>
-                    <div class="chart-notes">Temperature, Humidity, PM, VOC</div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-6 col-md-4">
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Sensor Levels Hourly</div>
-                        <canvas class="chart-stage" id="hourChart" width="500" height="500"></canvas>
-                        <div class="chart-notes">X-axis Displays Hourly Intervals</div>
+
+        <div class="container-fluid">
+            {% block dashboard_interior %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">
+                                Heat Map of Sensor Levels
+                            </div>
+                            <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
+                            <div id="panel">
+                                <button onclick="toggleTempMap()">Temperature</button>
+                                <button onclick="toggleHumiMap()">Humidity</button>
+                                <button onclick="toggleVocsMap()">Volatile Organic</button>
+                                <button onclick="togglePartMap()">Particle 2.5</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Humidity Levels</div>
-                        <canvas class="chart-stage" id="humiChart" width="500" height="500"></canvas>
-                        <div class="chart-notes">Timeline</div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Temperature Levels</div>
-                        <canvas class='chart-stage' id="tempChart" width="500" height="500"></canvas>
-                        <div class="chart-notes">Timeline</div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Particulate Matter 2.5 Levels</div>
-                        <canvas class="chart-stage" id="partChart" width="500" height="500"></canvas>
-                        <div class="chart-notes">Detects Smoke, Exhaust, and most air pollution</div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Volatile Organic Compound Levels</div>
-                        <canvas class="chart-stage" id="vocsChart" width="500" height="500"></canvas>
-                        <div class="chart-notes">X-axis represents date and time</div>
-                    </div>
-                </div>
-            </div>
+            {% endblock %}
         </div>
+
+        {% block script %}
+            <script src="{% static 'meta.js' %}"></script>
+            <script src="{% static 'keen.min.js' %}"></script>
+            <script src="{% static 'rest_framework/js/jquery-1.8.1-min.js' %}"></script>
+            <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+            <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
+            <script src="{% static 'rest_framework/js/default.js' %}"></script>
+
+            {% block script_specific %}
+                <script type="text/javascript"
+                    src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
+                <script src="{% static 'map-ui-main.js' %}"></script>
+            {% endblock %}
+
+            <script type="text/javascript">
+                window.onload = loadUI;
+            </script>
+        {% endblock %}
     </div>
-
-
-    {% block script %}
-		<script src="{% static 'meta.js' %}"></script>
-		<script src="{% static 'keen.min.js' %}"></script>
-        <script src="{% static 'rest_framework/js/jquery-1.8.1-min.js' %}"></script>
-        <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
-        <script src="{% static 'rest_framework/js/default.js' %}"></script>
-        <script src="{% static 'Chart.min.js' %}"></script>
-        <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
-        <script src="{% static 'map-ui-main.js' %}"></script>
-    {% endblock %}
 </body>
 {% endblock %}
