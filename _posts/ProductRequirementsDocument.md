@@ -22,7 +22,7 @@ PM (particulate matter) density, VOC(volatile organic compound) density and temp
 * Comfortable and convenient to wear.
 
 ### Milestones
-
+see [project schedule](https://www.google.com/calendar/embed?src=oml584uniamsa8ihe1kano3v18%40group.calendar.google.com&ctz=America/Los_Angeles)
 ### Team Member Responsibilities
 * Joseph Wu: android development, Bluetooth integration, web server construction 
 * Jay Feng: backend data aggregation
