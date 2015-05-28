@@ -1,5 +1,5 @@
 function loadUI() {
-    fetchData();
+    FetchData();
 }
 
 var aggregateData = {};
@@ -11,45 +11,53 @@ var vocsData = [];
 /**
  * Grabs data and places it in some script-wide variables
  */
-function fetchData() {
+function FetchData() {
     $.get('/data/').done(function(data) {
-        // Repackage data into four separate arrays
-        for (var index in data) {
-            var coord = new google.maps.LatLng(data[index].ycoord, data[index].xcoord);
-            tempData.push({ location: coord, weight: data[index].temperature });
-            humiData.push({ location: coord, weight: data[index].humidity });
-            partData.push({ location: coord, weight: data[index].particulate });
-            vocsData.push({ location: coord, weight: data[index].gas });
-        }
-
-        // Initialize the heatmap
-        initializeHeatmap();
+        InitializeHeatmap(ParseData(data));
     });
 }
 
-/**
- * Helper for transforming coordinates to a string index
- * The resolution for differentiating coordinates is 0.01
- */
-function calculateGeoString(data) {
-    return Math.round(data.ycoord * 100) + ',' + Math.round(data.xcoord * 100);
-}
+// The resolution for differentiating coordinates is 0.01
+var GEO_AGGREGATION_RESOLUTION = 1000;
 
 /**
  * Helper for folding data into an aggregate
+ * And filling in the four separate data arrays
  */
-function aggregateDataTogether(data) {
-    var key = calculateGeoString(data);
-    if (key in aggregateData) {
-        aggregateData[key].temperature += data.temperature;
-        aggregateData[key].humidity    += data.humidity   ;
-        aggregateData[key].particulate += data.particulate;
-        aggregateData[key].gas         += data.gas        ;
-        aggregateData[key].count += 1;
-    } else {
-        aggregateData[key] = data;
-        aggregateData[key].count = 1;
+function ParseData(data) {
+    // Repackage data into four separate arrays
+    aggregateData = {};
+    for (var index in data) {
+        var key = Math.round(data[index].ycoord * GEO_AGGREGATION_RESOLUTION) + ',' 
+                + Math.round(data[index].xcoord * GEO_AGGREGATION_RESOLUTION);
+        if (key in aggregateData) {
+            aggregateData[key].temperature += data[index].temperature;
+            aggregateData[key].humidity    += data[index].humidity   ;
+            aggregateData[key].particulate += data[index].particulate;
+            aggregateData[key].gas         += data[index].gas        ;
+            aggregateData[key].count += 1;
+        } else {
+            aggregateData[key] = data[index];
+            aggregateData[key].count = 1;
+        }
     }
+    
+    var averageX = 0;
+    var averageY = 0;
+    var countGeo = 0;
+    for (var key in aggregateData) {
+        var coord = new google.maps.LatLng(aggregateData[key].ycoord, aggregateData[key].xcoord);
+        tempData.push({ location: coord, weight: aggregateData[key].temperature / aggregateData[key].count });
+        humiData.push({ location: coord, weight: aggregateData[key].humidity    / aggregateData[key].count });
+        partData.push({ location: coord, weight: aggregateData[key].particulate / aggregateData[key].count });
+        vocsData.push({ location: coord, weight: aggregateData[key].gas         / aggregateData[key].count });
+        
+        averageX += aggregateData[key].xcoord;
+        averageY += aggregateData[key].ycoord;
+        countGeo++;
+    }
+    
+    return new google.maps.LatLng(averageY / countGeo, averageX / countGeo);
 }
 
 var map;
@@ -61,10 +69,10 @@ var vocsHeatmap;
 /**
  * Initializes the heatmap with data held in variables declared above
  */
-function initializeHeatmap() {
+function InitializeHeatmap(center) {
     var mapOptions = {
-        zoom: 14, // Level at which some landmarks and streets are visible
-        center: new google.maps.LatLng(47.450580, -122.307496),
+        zoom: 15, // Level at which some landmarks and streets are visible
+        center: center, 
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
