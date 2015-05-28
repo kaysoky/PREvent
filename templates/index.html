@@ -45,13 +45,26 @@
                             <div class="chart-title">
                                 Heat Map of Sensor Levels
                             </div>
-                            <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
-                            <div id="panel">
-                                <button onclick="toggleTempMap()">Temperature</button>
-                                <button onclick="toggleHumiMap()">Humidity</button>
-                                <button onclick="toggleVocsMap()">Volatile Organic</button>
-                                <button onclick="togglePartMap()">Particle 2.5</button>
+                            <div class="btn-group-xs">Show data from the last:
+                                <button type="button" id="heat_time_day" class="btn btn-default">24 Hours</button>
+                                <button type="button" id="heat_time_week" class="btn btn-default">7 Days</button>
+                                <button type="button" id="heat_time_all" class="btn btn-default active">All Time</button>
                             </div>
+                            <div class="btn-group-xs">Sensor type:
+                                <button type="button" id="heat_type_PM" class="btn btn-default active">Particulates</button>
+                                <button type="button" id="heat_type_VOC" class="btn btn-default">Volatile Organics</button>
+                                <button type="button" id="heat_type_temp" class="btn btn-default">Temperature</button>
+                                <button type="button" id="heat_type_humi" class="btn btn-default">Humidity</button>
+                            </div>
+                            <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">Timeline</div>
+                            <div class='chart-stage' id="timeline" style="height: 500px"></div>
                         </div>
                     </div>
                 </div>
