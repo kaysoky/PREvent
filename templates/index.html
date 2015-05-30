@@ -43,11 +43,17 @@
                             <div class="chart-title">
                                 Heat Map of Sensor Levels
                             </div>
-                            <div class="btn-group-xs">Show data from the last:
+                            <div id="time-type-buttons" class="btn-group-xs" style="display: inline">Show data from the last:
                                 <button type="button" id="heat_time_day" class="btn btn-default">24 Hours</button>
                                 <button type="button" id="heat_time_week" class="btn btn-default">7 Days</button>
                                 <button type="button" id="heat_time_all" class="btn btn-default active">All Time</button>
                             </div>
+                            {% if user.is_authenticated %}
+                                <div class="btn-group-xs" style="display: inline; margin-left: 3em">User:
+                                    <button type="button" id="heat_user_me" class="btn btn-default">Just me</button>
+                                    <button type="button" id="heat_user_all" class="btn btn-default active">All Users</button>
+                                </div>
+                            {% endif %}
                             <div id="sensor-type-buttons" class="btn-group-xs">Sensor type:
                                 <button type="button" id="heat_type_PM" class="btn btn-default active">Particulates</button>
                                 <button type="button" id="heat_type_VOC" class="btn btn-default">Volatile Organics</button>

@@ -50,7 +50,7 @@ function loadUI() {
     $('#legendGradient').css('background', '-o-linear-gradient' + gradientCss);
     $('#legendGradient').css('background', 'linear-gradient' + gradientCss);
 
-    FetchData('', InitializeHeatmap);
+    FetchData(InitializeHeatmap);
 }
 
 function InitializeHeatmap(center) {
@@ -69,21 +69,49 @@ function InitializeHeatmap(center) {
 
 // Semaphore to prevent concurrency messiness
 var isWorking = false;
+var isUserQuery = false;
 
 /**
  * Grabs data and places it in some script-wide variables
  */
-function FetchData(query, callback) {
+function FetchData(callback) {
     if (isWorking) return;
-
     isWorking = true;
-    $.get('/data/?' + query + (query.length > 0 ? '&' : '') + 'o=timestamp').done(function(data) {
+
+    var url = '/data/' + (isUserQuery ? 'user/' : '') + '?o=timestamp';
+    var time = new Date();
+    switch ($('#time-type-buttons').children('.active').attr('id')) {
+        case "heat_time_day":
+            time.setDate(time.getDate() - 1);
+            url += '&after=' + TimeToQueryBody(time);
+            break;
+        case "heat_time_week":
+            time.setDate(time.getDate() - 7);
+            url += '&after=' + TimeToQueryBody(time);
+            break;
+        case "heat_time_all":
+            break;
+    }
+
+    $.get(url).done(function(data) {
         lastFetchedData = data;
 
         callback(ParseData(data));
         RefreshCharts();
         isWorking = false;
     });
+}
+
+/**
+ * Helper for formatting time into a query string body
+ */
+function TimeToQueryBody(time) {
+    return time.getFullYear()
+        + '-' + (time.getMonth() + 1)
+        + '-' + time.getDate()
+        + ' ' + time.getHours()
+        + ':' + time.getMinutes()
+        + ':' + time.getSeconds();
 }
 
 // The resolution for differentiating coordinates is 0.01
@@ -295,41 +323,48 @@ function BuildHistogram(values, key) {
 
 /***** Heatmap button handlers *****/
 
-function TimeToQueryBody(time) {
-    return time.getFullYear()
-        + '-' + (time.getMonth() + 1)
-        + '-' + time.getDate()
-        + ' ' + time.getHours()
-        + ':' + time.getMinutes()
-        + ':' + time.getSeconds();
-}
 $('#heat_time_day').click(function () {
     if (isWorking || $(this).hasClass('active')) return;
 
-    var time = new Date();
-    time.setDate(time.getDate() - 1);
-    FetchData('after=' + TimeToQueryBody(time), function() {});
-
     $(this).addClass('active');
     $('#heat_time_week, #heat_time_all').removeClass('active');
+
+    FetchData(function() {});
 });
 $('#heat_time_week').click(function () {
     if (isWorking || $(this).hasClass('active')) return;
 
-    var time = new Date();
-    time.setDate(time.getDate() - 7);
-    FetchData('after=' + TimeToQueryBody(time), function() {});
-
     $(this).addClass('active');
     $('#heat_time_day, #heat_time_all').removeClass('active');
+
+    FetchData(function() {});
 });
 $('#heat_time_all').click(function () {
     if (isWorking || $(this).hasClass('active')) return;
 
-    FetchData('', function() {});
-
     $(this).addClass('active');
     $('#heat_time_day, #heat_time_week').removeClass('active');
+
+    FetchData(function() {});
+});
+
+$('#heat_user_me').click(function () {
+    if (isWorking || $(this).hasClass('active')) return;
+
+    isUserQuery = true;
+    FetchData(function() {});
+
+    $(this).addClass('active');
+    $('#heat_user_all').removeClass('active');
+});
+$('#heat_user_all').click(function () {
+    if (isWorking || $(this).hasClass('active')) return;
+
+    isUserQuery = false;
+    FetchData(function() {});
+
+    $(this).addClass('active');
+    $('#heat_user_me').removeClass('active');
 });
 
 $('#heat_type_PM').click(togglePartMap);
