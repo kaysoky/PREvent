@@ -14,9 +14,6 @@ from serializers import DatapointSerializer
 def index(request):
     return render(request, 'index.html')
 
-def graphs(request):
-    return render(request, 'graphs.html')
-
 class AuthCheck(generics.ListAPIView):
     """ Helper (hack) for phone companion app to check user's credentials """
     permission_classes = (IsAuthenticated,)
@@ -36,6 +33,7 @@ class DatapointFilter(django_filters.FilterSet):
     class Meta:
         model = Datapoint
         fields = ['xmin', 'xmax', 'ymin', 'ymax', 'before', 'after']
+        order_by = ['timestamp']
 
 class DatapointList(generics.ListCreateAPIView):
     """ List all datapoints, or create a new datapoint """

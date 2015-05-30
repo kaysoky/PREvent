@@ -5,6 +5,7 @@
 
 {% block dashboard_theme %}
     <link rel="stylesheet" type="text/css" href="{% static 'keen-dashboards.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'chart.css' %}" />
 {% endblock %}
 
 {% block body %}
@@ -15,15 +16,12 @@
                 <div class="container">
                     <span>
                         {% block branding %}
-                            <a class='navbar-brand' rel="nofollow" href='/'>
+                            <a class="navbar-brand" rel="nofollow" href="/">
                                 AtmoSPHERE
                             </a>
                         {% endblock %}
                     </span>
                     <ul class="nav navbar-nav pull-right">
-                        {% block other_tabs %}
-                            <li><a href="graphs/">Data Graphs</a></li>
-                        {% endblock %}
                         {% block userlinks %}
                             {% if user.is_authenticated %}
                                 {% optional_logout request user %}
@@ -40,7 +38,7 @@
         <div class="container-fluid">
             {% block dashboard_interior %}
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-11">
                         <div class="chart-wrapper">
                             <div class="chart-title">
                                 Heat Map of Sensor Levels
@@ -50,21 +48,40 @@
                                 <button type="button" id="heat_time_week" class="btn btn-default">7 Days</button>
                                 <button type="button" id="heat_time_all" class="btn btn-default active">All Time</button>
                             </div>
-                            <div class="btn-group-xs">Sensor type:
+                            <div id="sensor-type-buttons" class="btn-group-xs">Sensor type:
                                 <button type="button" id="heat_type_PM" class="btn btn-default active">Particulates</button>
                                 <button type="button" id="heat_type_VOC" class="btn btn-default">Volatile Organics</button>
                                 <button type="button" id="heat_type_temp" class="btn btn-default">Temperature</button>
                                 <button type="button" id="heat_type_humi" class="btn btn-default">Humidity</button>
                             </div>
-                            <div class='chart-stage' id="map-canvas" style="height: 400px"></div>
+                            <div class="chart-stage" id="map-canvas" style="height: 400px"></div>
+                        </div>
+                    </div>
+                    <div id="legend" class="col-sm-1">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">
+                                Legend
+                            </div>
+                            <div class="chart-stage" id="legendGradient" style="height: 445px">
+                                <div style="position: absolute; top: 0%">None</div>
+                                <div style="position: absolute; top: calc(33% - 0.5em)">Low</div>
+                                <div style="position: absolute; top: calc(67% - 1em)">Medium</div>
+                                <div style="position: absolute; top: calc(100% - 1.5em)">High</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <div class="chart-wrapper">
                             <div class="chart-title">Timeline</div>
-                            <div class='chart-stage' id="timeline" style="height: 500px"></div>
+                            <div class="chart-stage" id="timeline" style="height: 500px"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">Histogram</div>
+                            <div class="chart-stage" id="histogram" style="height: 500px"></div>
                         </div>
                     </div>
                 </div>
@@ -79,6 +96,7 @@
             <script src="{% static 'rest_framework/js/default.js' %}"></script>
 
             {% block script_specific %}
+                <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
                 <script type="text/javascript"
                     src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
                 <script src="{% static 'map-ui-main.js' %}"></script>
