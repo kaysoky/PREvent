@@ -14,6 +14,7 @@
 \usepackage{booktabs}
 \usepackage{ccicons}
 \usepackage{todonotes}
+\usepackage{notoccite}
 
 % Define a global style for URLs, rather that the default one
 \makeatletter
@@ -62,20 +63,38 @@
 \maketitle
 
 \begin{abstract}
-  UPDATED---\today. This sample paper describes the formatting
-  requirements for SIGCHI conference proceedings, and offers
-  recommendations on writing for the worldwide SIGCHI
-  readership. Please review this document even if you have submitted
-  to SIGCHI conferences before, as some format details have changed
-  relative to previous years. Abstracts should be about 150 words and
-  are required.
+    Air quality is an upstream component of human health, which cannot be addressed through primary care health facilities.
+    In this work, we present AtmoSPHERE, a connected, wearable air monitor.
+    Our system is comprised of a wrist-worn sensor suite, a connected smartphone, and a cloud service.
+    The sensor suite measures two major categories of airborne health risks: particulate matter and volatile organics.
+    The phone tags the data with location data and is used to communicate between the sensors and cloud.
+    From the cloud service, we display a dashboard to highlight air quality in travelled areas.
+    To evaluate the system, we collected data from 2 users over the course of a week of normal activity.
 \end{abstract}
 
 \category{J.3}{Health}{}
 
-\keywords{Air quality; Wearable; Connected devices; Distributed sensors.}
+\keywords{Air quality; Upstream health; Wearable; Connected devices; Distributed sensors.}
 
-\section{Introduction and Related Work}
+\section{Introduction}
+% Background/Motivation
+Approximately half of all known health conditions originate from environmental factors\cite{Manchanda:TEDTalk}.
+These factors are generally labelled ``upstream'' factors due to how they are detached from a person's immediate symptoms during illness.
+Upstream factors include variables such as the sanitation of a person's home, the condition of their workplace, or the local air.
+The existing health care system is not equipped to handle issues outside the hospital or clinic.
+However, many upstream factors are simple to identify, straight forward to address.
+We envision a device that can inform the user and others in the vicinity about one subset of upstream health risks.
+
+In this project, we introduce AtmoSPHERE, a wearable air monitor for both particulate matter and volatile organic compounds (VOC).
+Particulate matter (PM), is any microscopic matter suspended in the atmosphere.
+Particulates include dust as well as more dangerous varieties classified by their diameter in microns, known as PM10 and PM2.5.
+A PM sensor is comprised of an infrared emitting diode and a phototransistor placed diagonally\cite{PMSensor:Datasheet}.
+As particles pass through the path between the two components, deflected light is recorded by the phototransistor.
+This approach can detect visible dust as well as finer particles, such as PM2.5.
+
+Volatile organic compounds (VOC)
+
+\section{Related Products}
 TODO
 
 \section{Theory of Operation}
@@ -104,8 +123,6 @@ TODO
 
 \section{Conclusion}
 TODO
-% Just for bibTex to stop complaining...
-\cite{Schwartz:1995:GBF}
 
 % Try to balance the columns of the last page
 \balance{}
