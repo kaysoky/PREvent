@@ -1,0 +1,116 @@
+\documentclass{sigchi}
+
+% Override default copyright strip
+\toappear{Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.}
+
+% Load basic packages
+\usepackage{balance}
+\usepackage{graphics}
+\usepackage{txfonts}
+\usepackage{times}
+\usepackage[pdftex]{hyperref}
+\usepackage{color}
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{ccicons}
+\usepackage{todonotes}
+
+% Define a global style for URLs, rather that the default one
+\makeatletter
+\def\url@leostyle{%
+  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{\def\UrlFont{\small\bf\ttfamily}}}
+\makeatother
+\urlstyle{leo}
+
+% To make various LaTeX processors do the right thing with page size
+\def\pprw{8.5in}
+\def\pprh{11in}
+\special{papersize=\pprw,\pprh}
+\setlength{\paperwidth}{\pprw}
+\setlength{\paperheight}{\pprh}
+\setlength{\pdfpagewidth}{\pprw}
+\setlength{\pdfpageheight}{\pprh}
+
+% Make sure hyperref comes last of your loaded packages, to give it a
+% fighting chance of not being over-written, since its job is to
+% redefine many LaTeX commands.
+\definecolor{linkColor}{RGB}{6,125,233}
+\hypersetup{%
+    pdftitle={SIGCHI Conference Proceedings Format},
+    pdfauthor={LaTeX},
+    pdfkeywords={SIGCHI, proceedings, archival format},
+    bookmarksnumbered,
+    pdfstartview={FitH},
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=linkColor,
+    breaklinks=true,
+}
+
+\begin{document}
+
+\title{AtmoSPHERE}
+
+\numberofauthors{1}
+\author{%
+    \alignauthor{Jay Feng, William Hwang, Joseph Wu, Mingyu Zhang \\
+        \affaddr{CSE 477, Spring 2015}} \\
+}
+
+\maketitle
+
+\begin{abstract}
+  UPDATED---\today. This sample paper describes the formatting
+  requirements for SIGCHI conference proceedings, and offers
+  recommendations on writing for the worldwide SIGCHI
+  readership. Please review this document even if you have submitted
+  to SIGCHI conferences before, as some format details have changed
+  relative to previous years. Abstracts should be about 150 words and
+  are required.
+\end{abstract}
+
+\category{J.3}{Health}{}
+
+\keywords{Air quality; Wearable; Connected devices; Distributed sensors.}
+
+\section{Introduction and Related Work}
+TODO
+
+\section{Theory of Operation}
+TODO
+
+\section{Implementation Details}
+TODO
+
+\subsection{Hardware}
+TODO
+
+\subsection{Phone Application}
+TODO
+
+\subsection{Web Application}
+TODO
+
+\section{Results}
+TODO
+
+\section{Challenges}
+TODO
+
+\section{Future Work and Discussion}
+TODO
+
+\section{Conclusion}
+TODO
+% Just for bibTex to stop complaining...
+\cite{Schwartz:1995:GBF}
+
+% Try to balance the columns of the last page
+\balance{}
+
+\bibliographystyle{SIGCHI-Reference-Format}
+\bibliography{report}
+
+\end{document}
