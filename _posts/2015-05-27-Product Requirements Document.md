@@ -7,7 +7,7 @@ Usually, we do not realize that more than 50% of health problems originate from 
 
 ### Deliverables
 * Wearable wristband with LED indicators
-* Web server backend to aggregate and analyze collected data as heap maps
+* Web server backend to aggregate and analyze collected data as heat maps
 * Android application as user interface
 
 ### Critical Features
@@ -23,11 +23,12 @@ See [project schedule](https://www.google.com/calendar/embed?src=oml584uniamsa8i
 * Jay Feng: web UI design, user experience
 * William Hwang: Bluetooth integration, hardware design and integration
 * Joseph Wu: Android development, Bluetooth integration, web server and UI construction
-* Mingyu Zhang: Android development, UI design
+* Mingyu Zhang: Android development and UI design
 
 ### Materials & Budget
 See [Bill of Materials](/PREvent/2015/04/14/Bill of Materials.html)
 
-### Risks
-???
-
+### Challenges
+* Testing and calibrating the sensors such that their values are linked to regulatory standards from the EPA
+* A small-ish form factor, given the typical size of particulate sensors
+* Not to over-stress the apparent risks from air.  We live in a relatively low risk area
