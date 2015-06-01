@@ -16,6 +16,15 @@
 \usepackage{todonotes}
 \usepackage{notoccite}
 
+\usepackage{environ}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes.geometric}
+
 % Define a global style for URLs, rather that the default one
 \makeatletter
 \def\url@leostyle{%
@@ -49,6 +58,33 @@
     urlcolor=linkColor,
     breaklinks=true,
 }
+
+% For scaling down tikzpictures
+\makeatletter
+\newsavebox{\measure@tikzpicture}
+\NewEnviron{scaletikzpicturetowidth}[1]{%
+  \def\tikz@width{#1}%
+  \def\tikzscale{1}\begin{lrbox}{\measure@tikzpicture}%
+  \BODY
+  \end{lrbox}%
+  \pgfmathparse{#1/\wd\measure@tikzpicture}%
+  \edef\tikzscale{\pgfmathresult}%
+  \BODY
+}
+\makeatother
+
+% Size of the component blocks
+\newlength{\blockSize}
+\setlength{\blockSize}{1.5cm}
+
+% Style of block component in diagram
+\tikzset{Component/.style={minimum width=\blockSize,
+                           minimum height=\blockSize,
+                           text width=\blockSize,
+                           align=center}}
+
+% Style of flow arrow in diagram
+\tikzset{Flow Arrow/.style={blue, dotted, line width=1pt}}
 
 \begin{document}
 
@@ -124,13 +160,19 @@ Figure~\ref{fig:software block} shows the system architecture and data flow.
 In this section, we will detail the hardware design, the software features, and the data API.
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\columnwidth]{figures/Software-Block-Diagram.jpg}
-    \caption{Insert a caption below each figure. Do not alter the Caption style.}
+    \include{figures/Software-Block-Diagram}
+    \caption{System architecture and data flow.}
     ~\label{fig:software block}
 \end{figure}
 
 \subsection{Hardware}
-TODO
+Figure~\ref{fig:hardware block}
+\begin{figure}
+    \centering
+    \include{figures/Hardware-Block-Diagram}
+    \caption{Components of the wearable device.}
+    ~\label{fig:hardware block}
+\end{figure}
 
 \subsection{Phone Application}
 TODO

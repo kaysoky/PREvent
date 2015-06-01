@@ -1,0 +1,43 @@
+\begin{scaletikzpicturetowidth}{0.9\columnwidth}
+\begin{tikzpicture}[scale=\tikzscale, every node/.style={scale=\tikzscale}]
+    % Sensor hub
+    \node[draw, rectangle, Component]
+        at (0, 0) (Arduino) {Arduino};
+
+    % Output module
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Arduino.south) - (0, 1)$) (Bluetooth) {Bluetooth};
+
+    % Sensors
+    \node[draw, rectangle, Component, anchor=east]
+        at ($(Bluetooth.west) - (1, 0)$) (PM Sensor) {PM \\ Sensor};
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(Bluetooth.east) + (1, 0)$) (Humidity) {Humidity \\ Sensor};
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(Arduino.east) + (1, 0)$) (Gas Sensor) {Gas \\ Sensor};
+
+    % Power
+    \node[draw, rectangle, Component, anchor=south]
+        at ($(Arduino.north) + (0, 1)$) (Booster) {Boost \\ Converter};
+    \node[draw, rectangle, Component, anchor=south]
+        at ($(Gas Sensor.north) + (0, 1)$) (Bucker) {Buck \\ Converter};
+    \node[draw, rectangle, Component, anchor=south]
+        at ($($(Booster.north)!0.5!(Bucker.north)$) + (0, 1)$) (Power) {Battery};
+
+    % Sensor interconnects
+    \draw[->, Flow Arrow] (PM Sensor) -- (Arduino)
+        node[pos=0.5, left] {Digital};
+    \draw[->, Flow Arrow] (Humidity) -- (Arduino)
+        node[pos=0.5, right] {I$^2$C};
+    \draw[->, Flow Arrow] (Gas Sensor) -- (Arduino)
+        node[pos=0.5, above] {Analog};
+
+    % Power lines
+    \draw[->, Flow Arrow] (Power) -- (Booster) -- (Arduino);
+    \draw[->, Flow Arrow] (Power) -- (Bucker) -- (Gas Sensor);
+
+    % To phone
+    \draw[->, Flow Arrow] (Arduino) -- (Bluetooth);
+
+\end{tikzpicture}
+\end{scaletikzpicturetowidth}

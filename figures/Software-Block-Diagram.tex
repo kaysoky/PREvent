@@ -1,0 +1,36 @@
+\begin{scaletikzpicturetowidth}{0.9\columnwidth}
+\begin{tikzpicture}[scale=\tikzscale, every node/.style={scale=\tikzscale}]
+    % Most of the specialized hardware
+    \node[draw, rectangle, Component]
+        at (0, 0) (Embedded) {Wearable \\ Device};
+
+    % Phone for GPS and data connection
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(Embedded.east) + (2, 0)$) (Phone) {Phone};
+
+    % Web server
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Phone.south) - (0, 1)$) (Server) {Web \\ Server};
+
+    % Database
+    \node[draw, cylinder, shape border rotate=90, aspect=0.25, Component, anchor=east]
+        at ($(Server.west) - (2, 0)$) (Database) {Database};
+
+    % Client
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Server.south) - (0, 1)$) (Client) {Client \\ Computer};
+
+    % Primary interconnect between hardware & software systems
+    \draw[->, Flow Arrow] (Embedded) -- (Phone)
+        node[black, pos=0.5, sloped, above] {Bluetooth};
+
+    % Data flow
+    \draw[->, Flow Arrow] (Phone) -- (Server)
+        node[black, pos=0.5, left] {Sensor Data + GPS};
+    \draw[-, Flow Arrow, opacity=0.3] (Server.north) to[out=south, in=east] (Server.west);
+    \draw[<->, Flow Arrow] (Server) -- (Database);
+    \draw[-, Flow Arrow, opacity=0.3] (Server.south) to[out=north, in=east] (Server.west);
+    \draw[->, Flow Arrow] (Server) -- (Client);
+
+\end{tikzpicture}
+\end{scaletikzpicturetowidth}
