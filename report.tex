@@ -85,6 +85,7 @@ The existing health care system is not equipped to handle issues outside the hos
 However, many upstream factors are simple to identify, straight forward to address.
 We envision a device that can inform the user and others in the vicinity about one subset of upstream health risks.
 
+% PM sensor background
 In this project, we introduce AtmoSPHERE, a wearable air monitor for both particulate matter and volatile organic compounds (VOC).
 Particulate matter (PM), is any microscopic matter suspended in the atmosphere.
 Particulates include dust as well as more dangerous varieties classified by their diameter in microns, known as PM10 and PM2.5.
@@ -92,16 +93,41 @@ A PM sensor is comprised of an infrared emitting diode and a phototransistor pla
 As particles pass through the path between the two components, deflected light is recorded by the phototransistor.
 This approach can detect visible dust as well as finer particles, such as PM2.5.
 
-Volatile organic compounds (VOC)
+% VOC sensor background
+Volatile organic compounds (VOC) are compounds with high vapor pressure at room temperature.
+VOCs are numerous and varied, and include harmful compounds such as benzene, chlorofluorocarbons, and methylene chloride.
+A VOC sensor comes in many forms.
+A semiconductor VOC sensor uses a chemical reaction between the air and a heated substrate, such as Tin Dioxide\cite{VOCSensor:Datasheet}.
+As the concentration of VOC in the air increases, the corresponding resistance of the substrate drops by a measurable amount.
 
-\section{Related Products}
-TODO
+% Advantages of a wearable
+AtmoSPHERE is intended to allow distributed sensing of environmental risks.
+The wearable is linked to a smartphone and through that, our cloud service and data API.
+By aggregating data from multiple users, we can build substantial maps of local air quality.
+We expect this device can be used to inform lifestyle changes.
 
 \section{Theory of Operation}
-TODO
+% How to wear it
+The only physical requirement of the AtmoSPHERE is sufficient air flow through the device.
+The wearable is designed to be worn on the wrist, where the movement of the arms will agitate air into the sensors.
+However, the device can be attached to any other location on the body.
+The wearable also doubles as a stationary air monitor, such as when taken off during charging.
+While stationary, diffusion is also an acceptable means of passing air over the sensor.
+
+% Phone companion
+For data collection, the wearable should always be within a short distance of a paired Android phone.
+The wearable and phone communicate via Bluetooth, so the maximum separation of the two devices should not exceed 10 meters.
+At the same time, the phone should have location services enabled and at least an intermittent internet connection.
 
 \section{Implementation Details}
-TODO
+Figure~\ref{fig:software block} shows the system architecture and data flow.
+In this section, we will detail the hardware design, the software features, and the data API.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\columnwidth]{figures/Software-Block-Diagram.jpg}
+    \caption{Insert a caption below each figure. Do not alter the Caption style.}
+    ~\label{fig:software block}
+\end{figure}
 
 \subsection{Hardware}
 TODO
@@ -110,6 +136,9 @@ TODO
 TODO
 
 \subsection{Web Application}
+TODO
+
+\subsection{Data API}
 TODO
 
 \section{Results}
