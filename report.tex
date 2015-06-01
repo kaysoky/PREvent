@@ -166,16 +166,35 @@ In this section, we will detail the hardware design, the software features, and 
 \end{figure}
 
 \subsection{Hardware}
-Figure~\ref{fig:hardware block}
 \begin{figure}
     \centering
     \include{figures/Hardware-Block-Diagram}
     \caption{Components of the wearable device.}
     ~\label{fig:hardware block}
 \end{figure}
+The device captures a total of four variables: PM, VOC, temperature, and humidity.
+The PM sensor is the Sharp GP2Y1010AU0F.
+The VOC sensor is the AMS AS-MLV-P2.
+Temperature and humidity are captured together with the Amphenol ChipCap2.
+We used a TinyDuino Processor Board to collect the sensor values and a TinyShield Bluegiga BLE112 Bluetooth module to communicate with the phone (Figure~\ref{fig:hardware block}).
+A RGB LED is used to alert the user in case any sensor values peak.
+
+For the power source, we used a Lithium Ion Polymer battery.
+Due to the different voltage requirements of the sensors and microprocessor, the battery is attached to a boost converter, NCP1402, for most of the components; and a buck converter, ISL85415, for the VOC sensor.
+For charging the device, we added a Basic Micro-USB LiPo Charger.
+A switch toggles the connection to the battery, although the device is expected to stay powered continuously.
 
 \subsection{Phone Application}
-TODO
+To connect our device with the cloud services, we require an Android phone of at least version 4.3.1 (Jelly Bean).
+This version of Android has built-in support for Bluetooth Low Energy, which we is used to communicate between the phone and wearable.
+The Android application consists of four screens: 
+\begin{itemize}
+    \item The welcome screen performs some preliminary checks on the services the app requires, such as an internet connection and location services.
+    \item The login screen authenticates the user grants the phone access to our cloud services, described in the next section.
+    \item The Bluetooth screen scans and connects to our device.
+    \item The data display screen shows several views of the data from the sensor.
+        The display is fairly simple; more substantial views are available on our associated web site, described next.
+\end{itemize}
 
 \subsection{Web Application}
 TODO
