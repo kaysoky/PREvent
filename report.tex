@@ -190,17 +190,39 @@ This version of Android has built-in support for Bluetooth Low Energy, which we 
 The Android application consists of four screens: 
 \begin{itemize}
     \item The welcome screen performs some preliminary checks on the services the app requires, such as an internet connection and location services.
-    \item The login screen authenticates the user grants the phone access to our cloud services, described in the next section.
+    \item The login screen authenticates the user grants the phone access to our cloud services.
     \item The Bluetooth screen scans and connects to our device.
     \item The data display screen shows several views of the data from the sensor.
-        The display is fairly simple; more substantial views are available on our associated web site, described next.
+        The display is fairly simple; more substantial views are available on our associated web site.
 \end{itemize}
+The Bluetooth connection is managed with a foreground service.
+This service reads data from the wearable and pushes the data onto the cloud.
+When an internet connection is not available, the data is stored locally until an internet connection becomes available.
 
 \subsection{Web Application}
-TODO
+The web interface is built with Django.
+A simple user registration and login interface exists for differentiating between each user's datapoints.
+The primary web interface is a dashboard of three data displays: a heat map, timeline, and histogram.
+Data is shown over the last day or week, or all existing data is shown.
+Only one attribute collected by the wearable, i.e. PM or VOC, is displayed at once.
 
 \subsection{Data API}
-TODO
+The cloud services follow a REST pattern and are linked to the web interface through a different endpoint.
+\begin{itemize}
+    \item \verb|GET /data/| -- Returns a list of datapoints gathered by the sensors
+    \item \verb|GET /data/user/| -- Returns a list of datapoints gathered by the current user
+    \item \verb|POST /data/| -- Adds a single datapoint to the database
+\end{itemize}
+The two \verb|GET| endpoints can be further filtered with a query string:
+\begin{itemize}
+    \item xmin -- Number.  Minimum longitude of the data
+    \item xmax -- Number.  Maximum longitude of the data
+    \item ymin -- Number.  Minimum latitude of the data
+    \item ymax -- Number.  Maximum latitude of the data
+    \item before -- Date (Format: YYYY-MM-DD HH:MM:SS).  Maximum timestamp of the data.
+    \item after -- Date (Same format as above).  Minimum timestamp of the data.
+    \item o -- ``timestamp''.  If present, sorts the results in ascending order by time.
+\end{itemize}
 
 \section{Results}
 TODO
