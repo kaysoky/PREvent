@@ -9,10 +9,12 @@ layout: default
 
     {{ content }}
 
-    {% if page.next != nil %}
-        <a href="/PREvent{{ page.next.url }}">Next Post</a>
-    {% endif %}
-    {% if page.previous != nil %}
-        <a href="/PREvent{{ page.previous.url }}">Previous Post</a>
-    {% endif %}
+    <div class="row center">
+        {% if page.previous != nil %}
+            <a href="/PREvent{{ page.previous.url }}" class="btn-large waves-effect waves-light teal lighten-1">Previous Post</a>
+        {% endif %}
+        {% if page.next != nil %}
+            <a href="/PREvent{{ page.next.url }}" class="btn-large waves-effect waves-light teal lighten-1">Next Post</a>
+        {% endif %}
+    </div>
 </div>
