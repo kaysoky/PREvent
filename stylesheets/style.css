@@ -1,6 +1,5 @@
 /* Custom Stylesheet */
-nav ul a,
-nav .brand-logo {
+nav ul a, nav .brand-logo {
   color: #444;
 }
 
@@ -18,9 +17,9 @@ p {
   height: auto;
   color: rgba(255,255,255,.9);
 }
-  .parallax-container .section {
-    width: 100%;
-  }
+.parallax-container .section {
+  width: 100%;
+}
 
 @media only screen and (max-width : 992px) {
   .parallax-container .section {
@@ -32,7 +31,6 @@ p {
   }
 }
 
-
 .icon-block {
   padding: 0 15px;
 }
@@ -43,4 +41,8 @@ footer.page-footer {
 
 ul li {
   list-style-type: circle;
+}
+
+.shadowed {
+  text-shadow: 1px 1px 1px black;
 }
