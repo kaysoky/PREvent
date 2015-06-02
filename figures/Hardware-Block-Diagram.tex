@@ -5,34 +5,34 @@
         at (0, 0) (Arduino) {Arduino};
 
     % Output module
-    \node[draw, rectangle, Component, anchor=north]
-        at ($(Arduino.south) - (0, 1)$) (Bluetooth) {Bluetooth};
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(Arduino.east) + (1, 0)$) (Bluetooth) {Bluetooth};
 
     % Sensors
-    \node[draw, rectangle, Component, anchor=east]
-        at ($(Bluetooth.west) - (1, 0)$) (PM Sensor) {PM \\ Sensor};
-    \node[draw, rectangle, Component, anchor=west]
-        at ($(Bluetooth.east) + (1, 0)$) (Humidity) {Humidity \\ Sensor};
-    \node[draw, rectangle, Component, anchor=west]
-        at ($(Arduino.east) + (1, 0)$) (Gas Sensor) {Gas \\ Sensor};
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Bluetooth.south) - (0, 1)$) (PM Sensor) {PM \\ Sensor};
+    \node[draw, rectangle, Component, anchor=south]
+        at ($(Bluetooth.north) + (0, 1)$) (Humidity) {Humidity \\ Sensor};
+    \node[draw, rectangle, Component, anchor=south]
+        at ($(Arduino.north) + (0, 1)$) (Gas Sensor) {Gas \\ Sensor};
 
     % Power
-    \node[draw, rectangle, Component, anchor=south]
-        at ($(Arduino.north) + (0, 1)$) (Booster) {Boost \\ Converter};
-    \node[draw, rectangle, Component, anchor=south]
-        at ($(Gas Sensor.north) + (0, 1)$) (Bucker) {Buck \\ Converter};
-    \node[draw, rectangle, Component, anchor=south]
-        at ($($(Booster.north)!0.5!(Bucker.north)$) + (0, 1)$) (Power) {Battery};
     \node[draw, rectangle, Component, anchor=east]
-        at ($(Power.west) - (1, 0)$) (Charger) {Micro-USB \\ Charger};
+        at ($(Arduino.west) - (1, 0)$) (Booster) {Boost \\ Converter};
+    \node[draw, rectangle, Component, anchor=east]
+        at ($(Gas Sensor.west) - (1, 0)$) (Bucker) {Buck \\ Converter};
+    \node[draw, rectangle, Component, anchor=east]
+        at ($($(Booster.west)!0.5!(Bucker.west)$) - (1, 0)$) (Power) {Battery};
+    \node[draw, rectangle, Component, anchor=north]
+        at ($(Power.south) - (0, 1)$) (Charger) {Micro-USB \\ Charger};
 
     % Sensor interconnects
     \draw[->, Flow Arrow] (PM Sensor) -- (Arduino)
-        node[pos=0.5, left] {Digital};
+        node[pos=0.5, right] {Digital};
     \draw[->, Flow Arrow] (Humidity) -- (Arduino)
         node[pos=0.5, right] {I$^2$C};
     \draw[->, Flow Arrow] (Gas Sensor) -- (Arduino)
-        node[pos=0.5, above] {Analog};
+        node[pos=0.5, left] {Analog};
 
     % Power lines
     \draw[->, Flow Arrow] (Charger) -- (Power);

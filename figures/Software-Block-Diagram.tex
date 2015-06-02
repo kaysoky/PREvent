@@ -17,8 +17,8 @@
         at ($(Server.west) - (2, 0)$) (Database) {Database};
 
     % Client
-    \node[draw, rectangle, Component, anchor=north]
-        at ($(Server.south) - (0, 1)$) (Client) {Client \\ Computer};
+    \node[draw, rectangle, Component, anchor=west]
+        at ($(Server.east) + (1, 0)$) (Client) {Client \\ Computer};
 
     % Primary interconnect between hardware & software systems
     \draw[->, Flow Arrow] (Embedded) -- (Phone)
