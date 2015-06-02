@@ -2,45 +2,50 @@
 layout: post
 title: Group Member Skills
 ---
-# Jay Feng
+# Jay Feng (EE)
+![](/PREvent/static/Headshot Jay.png)
 
 ### Software
-* Python, R, SQL, Web Scraping, Data Stuff
-* I would be interested in making a web server though too
-* Or creating an interface in javascript or node.js
+Python, R, SQL, Web Scraping, Data Stuff
 
-### Digital
-* Almost nothing. CSE 466
-
-### Analog
+### Digital Hardware
+Almost nothing. CSE 466
 
 
-# William Hwang
+# William Hwang (EE)
+![](/PREvent/static/Headshot William.png)
 
 ### Software
+Natural language processing, Java, Python, Matlab, C
+SolidWorks!
 
-### Digital
+### Digital Hardware
+Verilog, Arduino, FGPA work
+
+### Analog Hardware
+Audio circuitry, soldering
 
 
-# Joseph Wu
+# Joseph Wu (CSE)
+![](/PREvent/static/Headshot Joseph.png)
 
 ### Software
 * Primary: C/C++, Python, Java, LaTeX, Git
 * Secondary: C#, R, Matlab, Ruby, SML, Racket, CSS/HTML/Javascript, SQL
 * Specialization: Back-end infrastructure, distributed systems
 
-### Digital
-* A bit of Arduino and FPGA work
-
-### Analog
-* Intro level only
+### Digital Hardware
+Arduino and FPGA work
 
 
-### Analog
 # Mingyu Zhang
+![](/PREvent/static/Headshot Mingyu.png)
 
 ### Software
+???
 
-### Digital
+### Digital Hardware
+???
 
-### Analog
+### Analog Hardware
+???
