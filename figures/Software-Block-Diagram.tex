@@ -27,9 +27,7 @@
     % Data flow
     \draw[->, Flow Arrow] (Phone) -- (Server)
         node[black, pos=0.5, left] {Sensor Data + GPS};
-    \draw[-, Flow Arrow, opacity=0.3] (Server.north) to[out=south, in=east] (Server.west);
     \draw[<->, Flow Arrow] (Server) -- (Database);
-    \draw[-, Flow Arrow, opacity=0.3] (Server.south) to[out=north, in=east] (Server.west);
     \draw[->, Flow Arrow] (Server) -- (Client);
 
 \end{tikzpicture}

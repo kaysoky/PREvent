@@ -166,6 +166,7 @@ Figure~\ref{fig:software block} shows the overall system architecture and data f
 \end{figure}
 
 \subsection{Hardware}
+% Description of hardware
 The device captures a total of four variables: PM, VOC, temperature, and humidity.
 The PM sensor is the Sharp GP2Y1010AU0F.
 The VOC sensor is the AMS AS-MLV-P2.
@@ -173,6 +174,7 @@ Temperature and humidity are captured together with the Amphenol ChipCap2.
 We used a TinyDuino Processor Board to collect the sensor values and a TinyShield Bluegiga BLE112 Bluetooth module to communicate with the phone (Figure~\ref{fig:hardware block}).
 A RGB LED is used to alert the user in case any sensor values peak.
 
+% Description of power
 For the power source, we used a Lithium Ion Polymer battery.
 Due to the different voltage requirements of the sensors and microprocessor, the battery is attached to a boost converter, NCP1402, for most of the components; and a buck converter, ISL85415, for the VOC sensor.
 For charging the device, we added a Basic Micro-USB LiPo Charger.
@@ -243,7 +245,16 @@ We also expected low levels for VOC, however observed values showed high levels 
 \end{figure}
 
 \section{Challenges}
-TODO
+In terms of hardware challenges, minimizing the form factor of the device posed the greatest challenge.
+The PM sensor in particular requires a set amount of space in order to function properly, due to the optical requirements of the sensor.
+Smaller versions of PM sensors are physically possible\cite{PMSensor:Article}, but such sensors are not commercially available as of yet.
+Instead, we determined that the form factor was less important than a working prototype.
+As a result, the overall size of the prototype device was increased (see Figure~\ref{fig:housing}).
+
+The VOC sensor exhibited some drift over time.
+With two devices, we could cross reference the sensor values against each other.
+PM, temperature, and humidity values all agreed within 2\% of one other if the two devices are adjacent.
+However, the VOC sensor could be significantly divergent.
 
 \section{Future Work and Discussion}
 TODO
