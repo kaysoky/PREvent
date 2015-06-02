@@ -1,12 +1,11 @@
 <!doctype html>
-<html>
+<html lang="en">
     {% include header.html %}
     <body>
-        <div class="wrapper">
-            {% include navigation.html %}
-
-            <section>{{ content }}</section>
-        </div>
-        <script src="/PREvent/javascripts/scale.fix.js"></script>
+        {% include navigation.html %}
+        
+        {{ content }}
+        
+        {% include footer.html %}
     </body>
 </html>
