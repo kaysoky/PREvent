@@ -21,7 +21,7 @@ See [project schedule](https://www.google.com/calendar/embed?src=oml584uniamsa8i
 
 ### Team Member Responsibilities
 * Jay Feng: web UI design, user experience
-* William Hwang: Bluetooth integration, hardware design and integration
+* William Hwang: Bluetooth integration, mechanical design, hardware design and integration
 * Joseph Wu: Android development, Bluetooth integration, web server and UI construction
 * Mingyu Zhang: Android development and UI design
 
