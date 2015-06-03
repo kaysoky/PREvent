@@ -42,6 +42,7 @@
                         <div class="chart-wrapper">
                             <div class="chart-title">
                                 Heat Map of Sensor Levels
+                                <img id="spinner" src="{% static 'ajax-loader.gif' %}" alt="" />
                             </div>
                             <div id="time-type-buttons" class="btn-group-xs" style="display: inline">Show data from the last:
                                 <button type="button" id="heat_time_day" class="btn btn-default">24 Hours</button>
@@ -54,6 +55,10 @@
                                     <button type="button" id="heat_user_all" class="btn btn-default active">All Users</button>
                                 </div>
                             {% endif %}
+                            <div class="btn-group-xs" style="display: inline; margin-left: 3em">Custom Filter:
+                                <input name="filter" class="form-control textinput textInput" style="display: inline; width: auto" id="custom-filter" type="text">
+                                <button type="button" id="submit-filter" class="btn btn-default">Submit</button>
+                            </div>
                             <div id="sensor-type-buttons" class="btn-group-xs">Sensor type:
                                 <button type="button" id="heat_type_PM" class="btn btn-default active">Particulates</button>
                                 <button type="button" id="heat_type_VOC" class="btn btn-default">Volatile Organics</button>

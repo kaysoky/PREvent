@@ -74,23 +74,29 @@ var isUserQuery = false;
 /**
  * Grabs data and places it in some script-wide variables
  */
-function FetchData(callback) {
+function FetchData(callback, filter) {
     if (isWorking) return;
     isWorking = true;
+    
+    $('#spinner').show();
 
     var url = '/data/' + (isUserQuery ? 'user/' : '') + '?o=timestamp';
-    var time = new Date();
-    switch ($('#time-type-buttons').children('.active').attr('id')) {
-        case "heat_time_day":
-            time.setDate(time.getDate() - 1);
-            url += '&after=' + TimeToQueryBody(time);
-            break;
-        case "heat_time_week":
-            time.setDate(time.getDate() - 7);
-            url += '&after=' + TimeToQueryBody(time);
-            break;
-        case "heat_time_all":
-            break;
+    if (filter) {
+        url += '&' + filter;
+    } else {
+        var time = new Date();
+        switch ($('#time-type-buttons').children('.active').attr('id')) {
+            case "heat_time_day":
+                time.setDate(time.getDate() - 1);
+                url += '&after=' + TimeToQueryBody(time);
+                break;
+            case "heat_time_week":
+                time.setDate(time.getDate() - 7);
+                url += '&after=' + TimeToQueryBody(time);
+                break;
+            case "heat_time_all":
+                break;
+        }
     }
 
     $.get(url).done(function(data) {
@@ -99,6 +105,8 @@ function FetchData(callback) {
         callback(ParseData(data));
         RefreshCharts();
         isWorking = false;
+        
+        $('#spinner').hide();
     });
 }
 
@@ -256,6 +264,9 @@ function BuildTimeline(data, key) {
     svg.append("path")
         .attr("class", "area")
         .attr("d", area(data));
+        
+    var zoom = d3.behavior.zoom();
+    svg.call(zoom);
 }
 
 /**
@@ -373,6 +384,15 @@ $('#heat_type_PM').click(togglePartMap);
 $('#heat_type_VOC').click(toggleVocsMap);
 $('#heat_type_temp').click(toggleTempMap);
 $('#heat_type_humi').click(toggleHumiMap);
+
+$('#submit-filter').click(function () {
+    if (isWorking) return;
+    
+    $('#heat_time_day, #heat_time_week, #heat_time_all').removeClass('active');
+    
+    var text = $('#custom-filter').val();
+    FetchData(function () {}, text);
+});
 
 function toggleTempMap() {
     tempHeatmap.setMap(map);
