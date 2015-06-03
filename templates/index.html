@@ -45,9 +45,9 @@
                                 <img id="spinner" src="{% static 'ajax-loader.gif' %}" alt="" />
                             </div>
                             <div id="time-type-buttons" class="btn-group-xs" style="display: inline">Show data from the last:
-                                <button type="button" id="heat_time_day" class="btn btn-default">24 Hours</button>
+                                <button type="button" id="heat_time_day" class="btn btn-default active">24 Hours</button>
                                 <button type="button" id="heat_time_week" class="btn btn-default">7 Days</button>
-                                <button type="button" id="heat_time_all" class="btn btn-default active">All Time</button>
+                                <button type="button" id="heat_time_all" class="btn btn-default">All Time</button>
                             </div>
                             {% if user.is_authenticated %}
                                 <div class="btn-group-xs" style="display: inline; margin-left: 3em">User:

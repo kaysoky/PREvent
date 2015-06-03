@@ -64,7 +64,8 @@ function InitializeHeatmap(center) {
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
     // Default to PM display
-    togglePartMap();
+    partHeatmap.setMap(map);
+    RefreshCharts('particulate');
 }
 
 // Semaphore to prevent concurrency messiness
