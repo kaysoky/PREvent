@@ -247,11 +247,23 @@ The two \verb|GET| endpoints can be further filtered with a query string:
 We built two prototype devices and gathered data over a week in the vicinity of the University of Washington and Seattle.
 We expected and observed low levels for PM.
 We also expected low levels for VOC, however observed values showed high levels of VOC around some roads and within some buildings (see Figure~\ref{fig:voc heatmap}).
+In addition, we had several users wear the device during their daily activity.
+One such example is shown in Figure~\ref{fig:commute}.
 \begin{figure}
     \centering
     \includegraphics[width=0.9\columnwidth]{figures/VOC-Heatmap.png}
-    \caption{VOC data represented as a heatmap.  Red represents high levels, yellow intermediate, green low.}
+    \caption{VOC data represented as a heatmap.
+        Red represents high levels, yellow intermediate, green low.}
     ~\label{fig:voc heatmap}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\columnwidth]{figures/Commute-Timeline.png}
+    \caption{VOC levels over a long commute from the University of Washington to the subject's home.
+        Levels appear lower when outside walking.
+        Elevated levels appear when inside a bus and in the subject's house.
+        The spike is due to the subject washing his hands with (perfumed) hand soap.}
+    ~\label{fig:commute}
 \end{figure}
 
 \section{Challenges}
@@ -285,12 +297,19 @@ For example, a high particle count may indicate high pollen areas to avoid, or s
 \end{figure}
 
 A significant market for air quality monitors exists in the developing world.
-Seattle is relatively clean and free of egregious pollution.
+Seattle is relatively clean and free of egregious pollution (see Figure~\ref{fig:mueller}).
 The city hosts ``green'' initiatives often, and has high air quality standards for a city of its size.
 On the other hand, approximately 3.5 million deaths each year are attributed to air pollution in India alone\cite{AirPollution:Article}.
 For countries in this situation, an increased number of monitors gives grass-root support for environmental initiatives.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\columnwidth]{figures/Mueller-Timeline.png}
+    \caption{In Seattle, it is very difficult to get a high PM reading.
+        To get the spikes in the timeline above, the subject entered a workshop in Mueller hall in the University of Washington, while someone was performing experiments with flaky materials.}
+    ~\label{fig:mueller}
+\end{figure}
 
-The necessity of air monitoring devices is clear; the true challenge is making the device practical and accessible for low-income and poverished countries where the people need it the most. 
+The necessity of air monitoring devices is clear; the true challenge is making the device practical and accessible for low-income and poverished countries where the people need it the most.
 The bill of materials for an air quality monitor is quite significant.
 Our device cost \$165 for parts alone.
 Even if made at scale, the price is unlikely to drop below \$100.
@@ -298,8 +317,8 @@ This is evidenced by the price point of various other air quality monitors avail
 Considering that a companion smartphone is a usual requirement of such devices, such air quality monitors are currently far from marketing to developing countries.
 
 \section{Conclusion}
-The AtmoSPHERE device allows a user to track and monitor the air pollution in their life using four different environmental sensors. 
-With the wide array of sensor types, the device has a lot of potential to showcase environmental standards across cities and crowd-source data that would otherwise be hard to connect. 
+The AtmoSPHERE device allows a user to track and monitor the air pollution in their life using four different environmental sensors.
+With the wide array of sensor types, the device has a lot of potential to showcase environmental standards across cities and crowd-source data that would otherwise be hard to connect.
 Air pollution will increasingly become a concern in countries such as China and India.
 In the U.S. topics such as climate change will also call for increased awareness over the environment.
 And ubiquitous air monitoring systems should become more of a commonality.
