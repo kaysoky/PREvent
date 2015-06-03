@@ -5,8 +5,8 @@
   shape-rendering: crispEdges;
 }
 
-.dot {
-  stroke: #000;
+.area {
+  fill: steelblue;
 }
 
 .bar rect {

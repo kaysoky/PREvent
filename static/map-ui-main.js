@@ -219,6 +219,12 @@ function BuildTimeline(data, key) {
     var xAxis = d3.svg.axis().scale(x).orient("bottom");
     var yAxis = d3.svg.axis().scale(y).orient("left");
 
+    // Initialize the area plot
+    var area = d3.svg.area()
+        .x(function(d) { return x(d.date); })
+        .y0(height)
+        .y1(function(d) { return y(d[key]); });
+
     // Build the chart area
     d3.select("#timeline").select('svg').remove();
     var svg = d3.select("#timeline").append("svg")
@@ -247,18 +253,9 @@ function BuildTimeline(data, key) {
             .text("Sensor Value");
 
     // Add the data
-    svg.selectAll(".dot")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("class", "dot")
-        .attr("cx", function(d) {
-            return x(d.date);
-        })
-        .attr("cy", function(d) {
-            return y(d[key]);
-        })
-        .attr("r", 1);
+    svg.append("path")
+        .attr("class", "area")
+        .attr("d", area(data));
 }
 
 /**
