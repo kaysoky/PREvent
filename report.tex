@@ -8,7 +8,6 @@
 \usepackage{graphics}
 \usepackage{txfonts}
 \usepackage{times}
-\usepackage[pdftex]{hyperref}
 \usepackage{color}
 \usepackage{textcomp}
 \usepackage{booktabs}
@@ -24,6 +23,9 @@
 \usepackage{tikz}
 \usetikzlibrary{calc}
 \usetikzlibrary{shapes.geometric}
+
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[pdftex]{hyperref}
 
 % Define a global style for URLs, rather that the default one
 \makeatletter
@@ -190,7 +192,7 @@ All of the components are placed in a 3D-printed case (see Figure~\ref{fig:housi
 \subsection{Phone Application}
 To connect our device with the cloud services, we require an Android phone of at least version 4.3.1 (Jelly Bean).
 This version of Android has built-in support for Bluetooth Low Energy, which we is used to communicate between the phone and wearable.
-The Android application consists of four screens: 
+The Android application consists of four screens:
 \begin{itemize}
     \item The welcome screen performs some preliminary checks on the services the app requires, such as an internet connection and location services.
     \item The login screen authenticates the user grants the phone access to our cloud services.
@@ -257,16 +259,36 @@ PM, temperature, and humidity values all agreed within 2\% of one other if the t
 However, the VOC sensor could be significantly divergent.
 
 \section{Future Work and Discussion}
-The future of the air quality monitoring system will mostly face challenges with adoption and widespread use. While having a local air quality monitor tracking activity at all time is a good use for personal health, the amount of accuracy increases ten-fold with more and more users tracking air quality in the same region. With frequent anomalies from people possibly blowing in the device or leaving it by a heater, the variability and noise is large on every single device. 
+The future of the air quality monitoring system will mostly face challenges with adoption and widespread use.
+While having a local air quality monitor tracking activity at all times is potentially beneficial for personal health monitoring, the amount of accuracy increases as more and more users track air quality in the same region.
+With more users, gaps in coverage are overcome.
+At the same time, anomalies, such as from people blowing in the device or leaving it unattended by a pollution source, can be averaged away.
+After all, the variability and noise is large on any single device.
 
-By slimming down the device to make it more wearable and friendly to use, it's future is preventing sickness on an environmental scale to integrate with the "internet of things". With lots of crowdsourced data, users can be alerted for a variety of environmental concerns that interfere with their daily lives that cause detrimental harm down the road. Examples of this include high pollen areas to avoid, notifications of rising humidity to avoid the rain, and 
+If the device is slimmed down to make it more wearable and friendly to use, it can serve to prevent unhealthy behavior on a macro scale, or just increase awareness of unhealthy areas.
+With lots of crowd-sourced data, users can be alerted for a variety of environmental concerns that interfere with their daily lives.
+These alerts would probably be for risks that lower health outcomes over the long term.
+For example, a high particle count may indicate high pollen areas to avoid, or some large scale construction work in the area.
 
-But a huge propenent of using air quality monitors come from the quality in the environment in third world countries. Seattle as a whole is a relatively stable and clean environment. With green initiatives all over the city, Seattle has very good air quality for the size of it's city. When looking at relative air quality, the Atmosphere device could be used to track air quality measures across the U.S. for standardization, and then in-between individual countries. And article by Tech Times lists that over 3.5 million deaths a year are caused by indoor air pollution in India. http://www.techtimes.com/articles/57155/20150602/wearable-air-pollution-monitor-effect-policy-developing-world.htm
+A significant market for air quality monitors exists in the developing world.
+Seattle is relatively clean and free of egregious pollution.
+The city hosts ``green'' initiatives often, and has high air quality standards for a city of its size.
+On the other hand, approximately 3.5 million deaths each year are attributed to air pollution in India alone\cite{AirPollution:Article}.
+For countries in this situation, an increased number of monitors gives grass-root support for environmental initiatives.
 
-While the necessity of air monitoring devices is clear, the true challenge is getting around to making the device practical and accessible for low-income and poverished countries where the people need it the most. The given price that it took for our bill of materials is far too much for any third world country to afford when they have graver concerns about starvation and survival. 
+The necessity of air monitoring devices is clear; the true challenge is making the device practical and accessible for low-income and poverished countries where the people need it the most. 
+The bill of materials for an air quality monitor is quite significant.
+Our device cost \$165 for parts alone.
+Even if made at scale, the price is unlikely to drop below \$100.
+This is evidenced by the price point of various other air quality monitors available on the market, such as Speck\cite{Competitor:Speck} or TZOA\cite{Competitor:TZOA}.
+Considering that a companion smartphone is a usual requirement of such devices, such air quality monitors are currently far from marketing to developing countries.
 
 \section{Conclusion}
-In conclusion, the AtmoSPHERE device allows a user to track and monitor the air pollution in their life using four different environmental sensors. With the wide array of sensor types, the device has a lot of potential to showcase environmental standards across cities and crowd-source data that has been hard to connect. While air pollution becomes an increasing concern in countries such as China and the U.S. as topics such as climate change sweep the nation, easy air monitoring systems are more prevalent than ever. 
+The AtmoSPHERE device allows a user to track and monitor the air pollution in their life using four different environmental sensors. 
+With the wide array of sensor types, the device has a lot of potential to showcase environmental standards across cities and crowd-source data that would otherwise be hard to connect. 
+Air pollution will increasingly become a concern in countries such as China and India.
+In the U.S. topics such as climate change will also call for increased awareness over the environment.
+And ubiquitous air monitoring systems should become more of a commonality.
 
 % Try to balance the columns of the last page
 \balance{}
